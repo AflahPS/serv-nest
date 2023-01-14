@@ -20,6 +20,15 @@ export const userSchema = new mongoose.Schema(
   },
 );
 
+export interface Newbie {
+  name: string;
+  email: string;
+  password: string;
+  createdAt: Date;
+  updatedAt: Date;
+  _id: string | mongoose.Schema.Types.ObjectId;
+}
+
 export interface User {
   name: string;
   email: string;

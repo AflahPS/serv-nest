@@ -21,7 +21,7 @@ export class UserController {
   }
 
   @Get('single/:id')
-  getSingleUser(@Param() params) {
+  getSingleUser(@Param() params: { id: string }) {
     return this.userService.findUserById(params.id);
   }
 

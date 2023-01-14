@@ -1,31 +1,29 @@
 import {
   IsNotEmpty,
   IsString,
-  IsEmail,
   IsAlphanumeric,
   Length,
+  // IsLatLong,
 } from 'class-validator';
-import { Match } from '../decorator';
 
-export class signupDto {
+export class signupVendor {
   @IsNotEmpty()
   @IsString()
   @Length(2, 50)
   @IsAlphanumeric()
-  name: string;
+  service: string;
 
   @IsNotEmpty()
-  @IsEmail()
-  email: string;
-
-  @IsNotEmpty()
-  @IsString()
-  @Length(6, 20)
-  password: string;
+  // @IsLatLong()
+  location: { lat: string; lon: string };
 
   @IsNotEmpty()
   @IsString()
   @Length(6, 20)
-  @Match('password')
-  repeatPassword: string;
+  phone: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Length(6, 250)
+  about: string;
 }
