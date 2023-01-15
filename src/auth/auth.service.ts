@@ -2,11 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import mongoose from 'mongoose';
 
-import { signinDto, signupDto, signupVendor } from './dto';
+import { SigninDto, SignupDto, SignupVendor } from './dto';
 import { UserService } from 'src/user/user.service';
 import { VendorService } from 'src/vendor/vendor.service';
 import { Newbie } from 'src/user/user.model';
 import { Vendor } from 'src/vendor/vendor.model';
+import { thrower } from 'src/utils';
 
 @Injectable()
 export class AuthService {
@@ -29,20 +30,20 @@ export class AuthService {
       });
       return { status: 'success', token };
     } catch (err: any) {
-      console.error(err?.message);
+      thrower(err);
     }
   }
 
-  async signup(dto: signupDto) {
+  async signup(dto: SignupDto) {
     try {
       const newUser = await this.userService.addUser(dto);
       return await this.signToken(newUser._id, newUser.email, newUser.password);
     } catch (err: any) {
-      console.error(err?.message);
+      thrower(err);
     }
   }
 
-  async signin(dto: signinDto) {
+  async signin(dto: SigninDto) {
     try {
       const user = await this.userService.findUserByEmail({ email: dto.email });
       const isVerified = await this.userService.verifyUser(
@@ -52,11 +53,11 @@ export class AuthService {
       if (!isVerified) throw new NotFoundException('Email/password wrong !');
       return await this.signToken(user._id, user.email, user.password);
     } catch (err) {
-      console.error(err?.message);
+      thrower(err);
     }
   }
 
-  async signupVendor(dto: signupVendor, user: Newbie) {
+  async signupVendor(dto: SignupVendor, user: Newbie) {
     const combined: Vendor = {
       ...dto,
       name: user.name,
@@ -72,11 +73,11 @@ export class AuthService {
         newVendor.password,
       );
     } catch (err: any) {
-      console.error(err?.message);
+      thrower(err);
     }
   }
 
-  async signinVendor(dto: signinDto) {
+  async signinVendor(dto: SigninDto) {
     try {
       const vendor = await this.vendorService.findVendorByEmail({
         email: dto.email,
@@ -87,8 +88,8 @@ export class AuthService {
       );
       if (!isVerified) throw new NotFoundException('Email/password wrong !');
       return await this.signToken(vendor._id, vendor.email, vendor.password);
-    } catch (err) {
-      console.error(err?.message);
+    } catch (err: any) {
+      thrower(err);
     }
   }
 }

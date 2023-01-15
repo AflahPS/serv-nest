@@ -1,16 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import * as argon from 'argon2';
 
 import { Newbie, User } from './user.model';
-import { signupDto } from 'src/auth/dto';
+import { SignupDto } from 'src/auth/dto';
 
 @Injectable()
 export class UserService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
-  async addUser(dto: signupDto): Promise<Newbie> {
+  async addUser(dto: SignupDto): Promise<Newbie> {
     // Hashing the user password
     const hashed = await argon.hash(dto.password);
     dto.password = hashed;
@@ -45,7 +49,7 @@ export class UserService {
     } catch (err) {
       throw new NotFoundException(err.message || 'Something went wrong');
     }
-    if (!user) throw new NotFoundException('Email/password is wrong !!');
+    if (!user) throw new ForbiddenException('Email/password is wrong !!');
     delete user.password;
     return user;
   }

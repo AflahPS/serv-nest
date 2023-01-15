@@ -6,7 +6,7 @@ import {
   // IsLatLong,
 } from 'class-validator';
 
-export class signupVendor {
+export class SignupVendor {
   @IsNotEmpty()
   @IsString()
   @Length(2, 50)

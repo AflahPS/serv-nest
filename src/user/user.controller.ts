@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { signupDto } from 'src/auth/dto';
+import { SignupDto } from 'src/auth/dto';
 import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/auth/decorator';
 import { User } from './user.model';
@@ -10,7 +10,7 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Post()
-  insertUser(@Body() dto: signupDto) {
+  insertUser(@Body() dto: SignupDto) {
     return this.userService.addUser(dto);
   }
 

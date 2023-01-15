@@ -7,7 +7,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { signinDto, signupDto, signupVendor } from './dto';
+import { SigninDto, SignupDto, SignupVendor } from './dto';
 import { GetUser } from './decorator';
 import { Newbie } from 'src/user/user.model';
 import { JwtGuard } from './guard';
@@ -18,13 +18,13 @@ export class AuthController {
 
   // NORMAL-USER:
   @Post('signup')
-  signup(@Body() dto: signupDto) {
+  signup(@Body() dto: SignupDto) {
     return this.authService.signup(dto);
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('signin')
-  signin(@Body() dto: signinDto) {
+  signin(@Body() dto: SigninDto) {
     return this.authService.signin(dto);
   }
 
@@ -36,14 +36,13 @@ export class AuthController {
   // VENDOR:
   @UseGuards(JwtGuard)
   @Post('signup/vendor')
-  signupVendor(@Body() dto: signupVendor, @GetUser() user: Newbie) {
-    console.log({ user });
+  signupVendor(@Body() dto: SignupVendor, @GetUser() user: Newbie) {
     return this.authService.signupVendor(dto, user);
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('signin/vendor')
-  signinVendor(@Body() dto: signinDto) {
+  signinVendor(@Body() dto: SigninDto) {
     return this.authService.signinVendor(dto);
   }
 }

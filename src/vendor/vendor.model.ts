@@ -9,6 +9,7 @@ export const vendorSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
+      unique: true,
     },
     password: {
       type: String,
@@ -30,6 +31,13 @@ export const vendorSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    image: String,
+    experience: Number,
+    requests: [mongoose.Schema.Types.ObjectId],
+    followes: [mongoose.Schema.Types.ObjectId],
+    employees: [mongoose.Schema.Types.ObjectId],
+    jobs: [mongoose.Schema.Types.ObjectId],
+    projects: [mongoose.Schema.Types.ObjectId],
   },
   {
     timestamps: true,
@@ -45,6 +53,13 @@ export interface Vendor {
   location: { lat: string; lon: string };
   phone: string;
   about: string;
+  image?: string;
+  experience?: number;
+  followers?: [string | mongoose.Schema.Types.ObjectId];
+  requests?: [string | mongoose.Schema.Types.ObjectId];
+  employees?: [string | mongoose.Schema.Types.ObjectId];
+  jobs?: [string | mongoose.Schema.Types.ObjectId];
+  projects?: [string | mongoose.Schema.Types.ObjectId];
   createdAt?: Date;
   updatedAt?: Date;
 }

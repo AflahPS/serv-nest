@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 import { Match } from '../decorator';
 
-export class signupDto {
+export class SignupDto {
   @IsNotEmpty()
   @IsString()
   @Length(2, 50)
