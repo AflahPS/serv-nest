@@ -13,5 +13,5 @@ export class Create {
 
   tagged: string[] | ObjId[];
 
-  project: string[] | ObjId[];
+  project: string | ObjId;
 }

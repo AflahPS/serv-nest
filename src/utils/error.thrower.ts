@@ -13,7 +13,7 @@ export function thrower(err: any) {
     throw new ForbiddenException(err.message);
   if (err?.code === 11000)
     throw new BadRequestException(
-      `Duplicate entries for ${Object.keys(err?.keyPattern)}`,
+      `Sorry, ${Object.keys(err?.keyPattern)} are already exists !`,
     );
   if (err?.message.includes('validation'))
     throw new BadRequestException(

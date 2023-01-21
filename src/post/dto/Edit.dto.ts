@@ -14,5 +14,5 @@ export class Edit {
 
   tagged: string[] | ObjId[];
 
-  project: string[] | ObjId[];
+  project: string | ObjId;
 }

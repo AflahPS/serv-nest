@@ -28,6 +28,7 @@ export class PostController {
     @GetUser('_id') id: ObjId | string,
   ) {
     dto.owner = id;
+
     try {
       return await this.postService.createPost(dto);
     } catch (err) {

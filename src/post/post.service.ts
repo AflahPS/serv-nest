@@ -20,9 +20,13 @@ export class PostService {
   ) {}
 
   async createPost(dto: Create) {
-    const prepPost = new this.postModel(dto);
-    const newPost = await prepPost.save();
-    return newPost;
+    try {
+      const prepPost = new this.postModel(dto);
+      const newPost = await prepPost.save();
+      return { status: 'success', post: newPost };
+    } catch (err) {
+      thrower(err);
+    }
   }
 
   async getPostById(id: string | ObjId) {

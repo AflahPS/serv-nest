@@ -23,9 +23,16 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     iat: number;
     exp: string;
   }) {
-    const user =
-      (await this.userService.findUserById(payload.sub)) ||
-      (await this.vendorService.findVendorById(payload.sub));
+    let user;
+    try {
+      user = await this.userService.findUserById(payload.sub);
+    } catch (err) {}
+
+    if (!user) {
+      try {
+        user = await this.vendorService.findVendorById(payload.sub);
+      } catch (err) {}
+    }
 
     if (user) {
       const isVerified = user.password === payload.password;
