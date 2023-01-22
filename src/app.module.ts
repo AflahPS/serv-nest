@@ -14,7 +14,11 @@ import { VendorModule } from './vendor/vendor.module';
     UserModule,
     PostModule,
     ConfigModule.forRoot(),
-    MongooseModule.forRoot(process.env.DB_URI),
+    MongooseModule.forRoot(
+      process.env.NODE_ENV === 'development'
+        ? process.env.DB_URI
+        : process.env.DB_CLOUD.replace('<password>', process.env.DB_PASSWORD),
+    ),
     VendorModule,
   ],
   controllers: [AppController],
