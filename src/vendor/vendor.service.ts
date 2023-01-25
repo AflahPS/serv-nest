@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Vendor } from './vendor.model';
+import { thrower } from 'src/utils';
 
 @Injectable()
 export class VendorService {
@@ -47,5 +48,19 @@ export class VendorService {
       .find({}, { __v: 0, password: 0 })
       .exec();
     return vendors;
+  }
+
+  async updateVendorData(dto: any, vendor: Vendor) {
+    try {
+      const prepData = Object.assign(vendor, dto);
+      const updatedVendor = await this.vendorModel.findByIdAndUpdate(
+        prepData._id,
+        prepData,
+        { new: true, runValidators: true },
+      );
+      return { status: 'success', user: updatedVendor };
+    } catch (err) {
+      thrower(err);
+    }
   }
 }

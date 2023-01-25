@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import { SigninDto, SignupDto, SignupVendor } from './dto';
 import { UserService } from 'src/user/user.service';
 import { VendorService } from 'src/vendor/vendor.service';
-import { Newbie } from 'src/user/user.model';
+import { Newbie, User } from 'src/user/user.model';
 import { Vendor } from 'src/vendor/vendor.model';
 import { thrower } from 'src/utils';
 
@@ -28,7 +28,7 @@ export class AuthService {
         expiresIn: '120m',
         secret: process.env.JWT_SECRET,
       });
-      return { status: 'success', token };
+      return token;
     } catch (err: any) {
       thrower(err);
     }
@@ -37,7 +37,13 @@ export class AuthService {
   async signup(dto: SignupDto) {
     try {
       const newUser = await this.userService.addUser(dto);
-      return await this.signToken(newUser._id, newUser.email, newUser.password);
+      const token = await this.signToken(
+        newUser._id,
+        newUser.email,
+        newUser.password,
+      );
+      delete newUser.password;
+      return { status: 'success', token, user: newUser };
     } catch (err: any) {
       thrower(err);
     }
@@ -51,13 +57,15 @@ export class AuthService {
         user.password,
       );
       if (!isVerified) throw new NotFoundException('Email/password wrong !');
-      return await this.signToken(user._id, user.email, user.password);
+      const token = await this.signToken(user._id, user.email, user.password);
+      delete user.password;
+      return { status: 'success', token, user };
     } catch (err) {
       thrower(err);
     }
   }
 
-  async signupVendor(dto: SignupVendor, user: Newbie) {
+  async signupVendor(dto: SignupVendor, user: Newbie | User) {
     const combined: Vendor = {
       ...dto,
       name: user.name,
@@ -67,11 +75,13 @@ export class AuthService {
     try {
       const newVendor = await this.vendorService.addVendor(combined);
       await this.userService.findByIdAndDelete(user._id);
-      return await this.signToken(
+      const token = await this.signToken(
         newVendor._id,
         newVendor.email,
         newVendor.password,
       );
+      delete newVendor.password;
+      return { status: 'success', token, user: newVendor };
     } catch (err: any) {
       thrower(err);
     }
@@ -87,7 +97,13 @@ export class AuthService {
         vendor.password,
       );
       if (!isVerified) throw new NotFoundException('Email/password wrong !');
-      return await this.signToken(vendor._id, vendor.email, vendor.password);
+      const token = await this.signToken(
+        vendor._id,
+        vendor.email,
+        vendor.password,
+      );
+      delete vendor.password;
+      return { status: 'success', token, user: vendor };
     } catch (err: any) {
       thrower(err);
     }

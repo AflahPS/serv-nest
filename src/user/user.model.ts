@@ -16,7 +16,19 @@ export const userSchema = new mongoose.Schema(
       required: true,
     },
     image: String,
-    location: { lat: String, lon: String },
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point',
+        required: true,
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
+    },
+    place: String,
     phone: String,
     followers: [mongoose.Schema.Types.ObjectId],
     requests: [mongoose.Schema.Types.ObjectId],
@@ -40,7 +52,8 @@ export interface User {
   email: string;
   password: string;
   image?: string;
-  location?: { lat: string; lon: string };
+  location?: { type: string; coordinates: [number] };
+  place: string;
   phone?: string;
   followers?: [string | mongoose.Schema.Types.ObjectId];
   requests?: [string | mongoose.Schema.Types.ObjectId];

@@ -15,7 +15,7 @@ export class SignupVendor {
 
   @IsNotEmpty()
   // @IsLatLong()
-  location: { lat: string; lon: string };
+  location: { type: string; coordinates: [number] };
 
   @IsNotEmpty()
   @IsString()

@@ -36,8 +36,17 @@ export class PostController {
     }
   }
 
-  @UseGuards(JwtGuard)
   @Get()
+  async getPostForGuest() {
+    try {
+      return await this.postService.getPostForGuest();
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('user')
   async getPostForUser(@GetUser() user: User | Vendor) {
     try {
       return await this.postService.getPostForUser(user._id);

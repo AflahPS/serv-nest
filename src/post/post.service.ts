@@ -53,9 +53,29 @@ export class PostService {
   async getPostForUser(id: string | ObjId) {
     try {
       console.log(`Add some algorithm in here for ${id}`);
-      const posts = await this.postModel.find().limit(10).exec();
+      const posts = await this.postModel
+        .find()
+        .sort('createdAt')
+        .limit(10)
+        .populate('owner')
+        .exec();
       if (!posts.length) throw new NotFoundException('Post not found !!');
-      return posts;
+      return { posts };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getPostForGuest() {
+    try {
+      const posts = await this.postModel
+        .find()
+        .sort('-createdAt')
+        .limit(10)
+        .populate('owner')
+        .exec();
+      if (!posts.length) throw new NotFoundException('Post not found !!');
+      return { posts };
     } catch (err) {
       thrower(err);
     }

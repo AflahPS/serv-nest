@@ -9,6 +9,7 @@ import * as argon from 'argon2';
 
 import { Newbie, User } from './user.model';
 import { SignupDto } from 'src/auth/dto';
+import { thrower } from 'src/utils';
 
 @Injectable()
 export class UserService {
@@ -65,5 +66,19 @@ export class UserService {
   async findAllUsers(): Promise<User[]> {
     const users = await this.userModel.find({}, { __v: 0, password: 0 }).exec();
     return users;
+  }
+
+  async updateUserData(dto: any, user: User) {
+    try {
+      const prepData = Object.assign(user, dto);
+      const updatedUser = await this.userModel.findByIdAndUpdate(
+        prepData._id,
+        prepData,
+        { new: true, runValidators: true },
+      );
+      return { status: 'success', user: updatedUser };
+    } catch (err) {
+      thrower(err);
+    }
   }
 }

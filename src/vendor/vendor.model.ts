@@ -20,9 +20,18 @@ export const vendorSchema = new mongoose.Schema(
       required: true,
     },
     location: {
-      type: { lat: String, lon: String },
-      required: true,
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point',
+        required: true,
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
     },
+    place: String,
     phone: {
       type: String,
       required: true,
@@ -50,7 +59,8 @@ export interface Vendor {
   email: string;
   password: string;
   service: string | mongoose.Schema.Types.ObjectId;
-  location: { lat: string; lon: string };
+  location?: { type: string; coordinates: [number] };
+  place?: string;
   phone: string;
   about: string;
   image?: string;
