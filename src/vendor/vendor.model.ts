@@ -40,6 +40,8 @@ export const vendorSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    workingDays: String,
+    workRadius: String,
     image: String,
     experience: Number,
     requests: [mongoose.Schema.Types.ObjectId],
@@ -64,6 +66,8 @@ export interface Vendor {
   phone: string;
   about: string;
   image?: string;
+  workingDays?: string;
+  workRadius?: string;
   experience?: number;
   followers?: [string | mongoose.Schema.Types.ObjectId];
   requests?: [string | mongoose.Schema.Types.ObjectId];

@@ -1,17 +1,24 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsOptional } from 'class-validator';
 import { ObjId } from 'src/utils';
 
 export class Create {
-  owner: string | ObjId;
+  @IsOptional()
+  @IsMongoId()
+  owner?: string | ObjId;
 
   @IsNotEmpty()
   mediaType: string;
 
-  media: string[];
+  @IsOptional()
+  media?: string[];
 
+  @IsNotEmpty()
   caption: string;
 
-  tagged: string[] | ObjId[];
+  @IsOptional()
+  tagged?: string[] | ObjId[];
 
+  @IsNotEmpty()
+  @IsMongoId()
   project: string | ObjId;
 }

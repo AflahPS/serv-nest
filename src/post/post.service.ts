@@ -41,9 +41,14 @@ export class PostService {
 
   async getPostByUserId(id: string | ObjId) {
     try {
-      const posts = await this.postModel.find({ owner: id }).exec();
+      const posts = await this.postModel
+        .find({ owner: id })
+        .sort('-createdAt')
+        .limit(10)
+        .populate('owner')
+        .exec();
       if (!posts.length) throw new NotFoundException('Post not found !!');
-      return posts;
+      return { posts };
     } catch (err) {
       thrower(err);
     }

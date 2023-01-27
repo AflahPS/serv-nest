@@ -1,17 +1,10 @@
-import {
-  IsNotEmpty,
-  IsString,
-  IsEmail,
-  IsAlphanumeric,
-  Length,
-} from 'class-validator';
+import { IsNotEmpty, IsString, IsEmail, Length } from 'class-validator';
 import { Match } from '../decorator';
 
 export class SignupDto {
   @IsNotEmpty()
   @IsString()
   @Length(2, 50)
-  @IsAlphanumeric()
   name: string;
 
   @IsNotEmpty()

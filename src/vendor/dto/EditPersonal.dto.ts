@@ -1,5 +1,4 @@
 import {
-  IsAlphanumeric,
   IsEmail,
   IsNotEmpty,
   IsNumberString,
@@ -11,7 +10,6 @@ export class EditPersonal {
   @IsNotEmpty()
   @IsString()
   @Length(2, 50)
-  @IsAlphanumeric()
   name: string;
 
   @IsNotEmpty()

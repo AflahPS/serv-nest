@@ -7,6 +7,7 @@ import { PostModule } from './post/post.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { VendorModule } from './vendor/vendor.module';
+import { ServiceModule } from './service/service.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { VendorModule } from './vendor/vendor.module';
         : process.env.DB_CLOUD.replace('<password>', process.env.DB_PASSWORD),
     ),
     VendorModule,
+    ServiceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

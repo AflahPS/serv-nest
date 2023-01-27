@@ -11,12 +11,16 @@ export class VendorService {
   ) {}
 
   async addVendor(dto: Vendor): Promise<Vendor> {
-    // Saving the vendor to the database
-    const newVendor = new this.vendorModel(dto);
-    const addedVendor = await newVendor.save();
+    try {
+      // Saving the vendor to the database
+      const newVendor = new this.vendorModel(dto);
+      const addedVendor = await newVendor.save();
 
-    delete addedVendor.password;
-    return addedVendor;
+      delete addedVendor.password;
+      return addedVendor;
+    } catch (err) {
+      thrower(err);
+    }
   }
 
   async findVendorById(id: string): Promise<Vendor> {
@@ -44,10 +48,14 @@ export class VendorService {
   }
 
   async findAllVendors(): Promise<Vendor[]> {
-    const vendors = await this.vendorModel
-      .find({}, { __v: 0, password: 0 })
-      .exec();
-    return vendors;
+    try {
+      const vendors = await this.vendorModel
+        .find({}, { __v: 0, password: 0 })
+        .exec();
+      return vendors;
+    } catch (err) {
+      thrower(err);
+    }
   }
 
   async updateVendorData(dto: any, vendor: Vendor) {
@@ -58,6 +66,7 @@ export class VendorService {
         prepData,
         { new: true, runValidators: true },
       );
+      delete updatedVendor.password;
       return { status: 'success', user: updatedVendor };
     } catch (err) {
       thrower(err);

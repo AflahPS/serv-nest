@@ -18,7 +18,7 @@ export class EditProfessional {
 
   @IsNotEmpty()
   @Length(2, 250)
-  description: string;
+  about: string;
 
   employees: string[];
 }

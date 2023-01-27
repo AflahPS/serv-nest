@@ -76,6 +76,7 @@ export class UserService {
         prepData,
         { new: true, runValidators: true },
       );
+      delete updatedUser.password;
       return { status: 'success', user: updatedUser };
     } catch (err) {
       thrower(err);
