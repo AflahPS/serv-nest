@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { User } from 'src/user/user.model';
 import { ObjId } from 'src/utils';
 
 export const likeSchema = new mongoose.Schema(
@@ -9,29 +10,17 @@ export const likeSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-    owner: {
-      type: {
-        name: String,
-        image: String,
-        isUser: Boolean,
-      },
-      required: true,
-    },
-    ownerId: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
     },
   },
   {
     timestamps: true,
   },
-).index({ post: 1, ownerId: 1 }, { unique: true });
+).index({ post: 1, user: 1 }, { unique: true });
 
 export interface Like {
   post: string | ObjId;
-  owner: {
-    name: string;
-    image: string;
-    isUser: boolean;
-    uid: string | ObjId;
-  };
+  user: User | ObjId | string;
 }

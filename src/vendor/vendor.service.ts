@@ -38,7 +38,10 @@ export class VendorService {
   async findVendorByEmail(obj: { email: string }): Promise<Vendor> {
     let vendor: Vendor;
     try {
-      vendor = await this.vendorModel.findOne(obj, { __v: 0 }).exec();
+      vendor = await this.vendorModel
+        .findOne(obj, { __v: 0 })
+        .populate('service')
+        .exec();
     } catch (err) {
       throw new NotFoundException(err.message || 'Something went wrong');
     }
@@ -68,6 +71,17 @@ export class VendorService {
       );
       delete updatedVendor.password;
       return { status: 'success', user: updatedVendor };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async findVendorByService(serviceId: string) {
+    try {
+      const vendors = await this.vendorModel
+        .find({ service: serviceId }, { password: 0 })
+        .exec();
+      return { results: vendors.length, vendors };
     } catch (err) {
       thrower(err);
     }

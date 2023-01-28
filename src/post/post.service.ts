@@ -9,8 +9,8 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjId, thrower } from 'src/utils';
 import { Like } from './like.model';
-import { Vendor } from 'src/vendor/vendor.model';
 import { User } from 'src/user/user.model';
+import { Vendor } from 'src/vendor/vendor.model';
 
 @Injectable()
 export class PostService {
@@ -88,15 +88,14 @@ export class PostService {
 
   async likePost(user: User | Vendor, postId: string | ObjId) {
     try {
+      if ('service' in user) {
+        throw new ForbiddenException('Vendors are not allowed to hit likes !');
+      }
       const prepLike = new this.likeModel({
         post: postId,
-        owner: {
-          name: user.name,
-          isUser: true /* for the time being*/,
-          image: user?.image,
-        },
-        ownerId: user._id,
+        user: user._id,
       });
+
       const newLike = await prepLike.save();
       if (newLike) return { status: 'success' };
       return { status: 'Something went wrong !!' };
@@ -113,6 +112,15 @@ export class PostService {
 
       if (res) return { status: 'success' };
       throw new NotFoundException('Could not find the post');
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getLikesOfPost(postId: string | ObjId) {
+    try {
+      const likes = await this.likeModel.find({ post: postId });
+      return { results: likes.length, likes: likes };
     } catch (err) {
       thrower(err);
     }

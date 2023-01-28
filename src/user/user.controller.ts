@@ -32,10 +32,6 @@ export class UserController {
   @UseGuards(JwtGuard)
   @Patch('/image')
   changeImage(@Body() dto: Image, @GetUser() user: User) {
-    console.log(
-      '🚀 ~ file: user.controller.ts:35 ~ UserController ~ changeImage ~ dto',
-      dto,
-    );
     return this.userService.updateUserData(dto, user);
   }
 

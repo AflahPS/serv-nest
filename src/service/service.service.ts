@@ -4,11 +4,13 @@ import { Model } from 'mongoose';
 import { Service } from './service.model';
 import { thrower } from 'src/utils';
 import { Create } from './dto/Create.dto';
+import { VendorService } from 'src/vendor/vendor.service';
 
 @Injectable()
 export class ServiceService {
   constructor(
     @InjectModel('Service') private readonly serviceModel: Model<Service>,
+    private vendorService: VendorService,
   ) {}
 
   async addService(dto: Create): Promise<Service> {
@@ -56,5 +58,9 @@ export class ServiceService {
     } catch (err) {
       thrower(err);
     }
+  }
+
+  async getVendorsByServiceId(serviceId: string) {
+    return this.vendorService.findVendorByService(serviceId);
   }
 }

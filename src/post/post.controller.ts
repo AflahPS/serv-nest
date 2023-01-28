@@ -73,9 +73,18 @@ export class PostController {
     }
   }
 
+  @Get('/like/:id')
+  async getLikesOfPost(@Param() params: MongoId) {
+    try {
+      return await this.postService.getLikesOfPost(params.id);
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
   @UseGuards(JwtGuard)
   @Post('/like/:id')
-  async likePost(@GetUser() user: User | Vendor, @Param() params: MongoId) {
+  async likePost(@GetUser() user: User, @Param() params: MongoId) {
     return await this.postService.likePost(user, params.id);
   }
 
