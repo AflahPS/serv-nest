@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Vendor } from './vendor.model';
 import { thrower } from 'src/utils';
+import { SignupVendor } from 'src/auth/dto';
 
 @Injectable()
 export class VendorService {
@@ -10,45 +11,45 @@ export class VendorService {
     @InjectModel('Vendor') private readonly vendorModel: Model<Vendor>,
   ) {}
 
-  async addVendor(dto: Vendor): Promise<Vendor> {
+  async addVendor(dto: SignupVendor): Promise<Vendor> {
     try {
       // Saving the vendor to the database
       const newVendor = new this.vendorModel(dto);
       const addedVendor = await newVendor.save();
 
-      delete addedVendor.password;
+      // delete addedVendor.password;
       return addedVendor;
     } catch (err) {
       thrower(err);
     }
   }
 
-  async findVendorById(id: string): Promise<Vendor> {
-    let vendor: Vendor;
-    try {
-      vendor = await this.vendorModel.findById(id, { __v: 0 }).exec();
-    } catch (err) {
-      throw new NotFoundException(err.message || 'Something went wrong');
-    }
-    if (!vendor) throw new NotFoundException('Could not find vendor');
-    delete vendor.password;
-    return vendor;
-  }
+  // async findVendorById(id: string): Promise<Vendor> {
+  //   let vendor: Vendor;
+  //   try {
+  //     vendor = await this.vendorModel.findById(id, { __v: 0 }).exec();
+  //   } catch (err) {
+  //     throw new NotFoundException(err.message || 'Something went wrong');
+  //   }
+  //   if (!vendor) throw new NotFoundException('Could not find vendor');
+  //   delete vendor.password;
+  //   return vendor;
+  // }
 
-  async findVendorByEmail(obj: { email: string }): Promise<Vendor> {
-    let vendor: Vendor;
-    try {
-      vendor = await this.vendorModel
-        .findOne(obj, { __v: 0 })
-        .populate('service')
-        .exec();
-    } catch (err) {
-      throw new NotFoundException(err.message || 'Something went wrong');
-    }
-    if (!vendor) throw new NotFoundException('Email/password is wrong !!');
-    delete vendor.password;
-    return vendor;
-  }
+  // async findVendorByEmail(obj: { email: string }): Promise<Vendor> {
+  //   let vendor: Vendor;
+  //   try {
+  //     vendor = await this.vendorModel
+  //       .findOne(obj, { __v: 0 })
+  //       .populate('service')
+  //       .exec();
+  //   } catch (err) {
+  //     throw new NotFoundException(err.message || 'Something went wrong');
+  //   }
+  //   if (!vendor) throw new NotFoundException('Email/password is wrong !!');
+  //   delete vendor.password;
+  //   return vendor;
+  // }
 
   async findAllVendors(): Promise<Vendor[]> {
     try {

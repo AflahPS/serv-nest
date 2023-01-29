@@ -1,38 +1,14 @@
 import * as mongoose from 'mongoose';
+import { User } from 'src/user/user.model';
 
 export const vendorSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    password: {
-      type: String,
-      required: true,
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      index: true,
     },
     service: {
-      type: String,
-      required: true,
-    },
-    location: {
-      type: {
-        type: String,
-        enum: ['Point'],
-        default: 'Point',
-        required: true,
-      },
-      coordinates: {
-        type: [Number],
-        required: true,
-      },
-    },
-    place: String,
-    phone: {
       type: String,
       required: true,
     },
@@ -42,10 +18,7 @@ export const vendorSchema = new mongoose.Schema(
     },
     workingDays: String,
     workRadius: String,
-    image: String,
     experience: Number,
-    requests: [mongoose.Schema.Types.ObjectId],
-    followes: [mongoose.Schema.Types.ObjectId],
     employees: [mongoose.Schema.Types.ObjectId],
     jobs: [mongoose.Schema.Types.ObjectId],
     projects: [mongoose.Schema.Types.ObjectId],
@@ -55,25 +28,14 @@ export const vendorSchema = new mongoose.Schema(
   },
 );
 
-export interface Vendor {
-  _id?: string | mongoose.Schema.Types.ObjectId;
-  name: string;
-  email: string;
-  password: string;
+export interface Vendor extends User {
+  user?: string | mongoose.Schema.Types.ObjectId;
   service: string | mongoose.Schema.Types.ObjectId;
-  location?: { type: string; coordinates: [number] };
-  place?: string;
-  phone: string;
   about: string;
-  image?: string;
   workingDays?: string;
   workRadius?: string;
   experience?: number;
-  followers?: [string | mongoose.Schema.Types.ObjectId];
-  requests?: [string | mongoose.Schema.Types.ObjectId];
   employees?: [string | mongoose.Schema.Types.ObjectId];
   jobs?: [string | mongoose.Schema.Types.ObjectId];
   projects?: [string | mongoose.Schema.Types.ObjectId];
-  createdAt?: Date;
-  updatedAt?: Date;
 }

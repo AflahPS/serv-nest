@@ -1,11 +1,18 @@
 import {
+  IsMongoId,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Length,
   // IsLatLong,
 } from 'class-validator';
+import { ObjId } from 'src/utils';
 
 export class SignupVendor {
+  @IsOptional()
+  @IsMongoId()
+  user: string | ObjId;
+
   @IsNotEmpty()
   @IsString()
   @Length(2, 50)

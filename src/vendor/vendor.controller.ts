@@ -1,25 +1,25 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Patch, UseGuards } from '@nestjs/common';
 import { VendorService } from './vendor.service';
 import { GetUser } from 'src/auth/decorator';
 import { JwtGuard } from 'src/auth/guard';
 import { Vendor } from './vendor.model';
-import { EditPersonal, EditProfessional, Image } from './dto';
+import { EditProfessional } from './dto';
 
 @Controller('vendor')
 export class VendorController {
   constructor(private vendorService: VendorService) {}
 
-  @Get('/:id')
-  getSingleVendor(@Param() params: { id: string }) {
-    return params.id;
-    // return this.vendorService.findVendorById(params.id);
-  }
+  // @Get('/:id')
+  // getSingleVendor(@Param() params: { id: string }) {
+  //   return params.id;
+  //   // return this.vendorService.findVendorById(params.id);
+  // }
 
-  @UseGuards(JwtGuard)
-  @Patch('/personal')
-  editVendorPersonal(@Body() dto: EditPersonal, @GetUser() vendor: Vendor) {
-    return this.vendorService.updateVendorData(dto, vendor);
-  }
+  // @UseGuards(JwtGuard)
+  // @Patch('/personal')
+  // editVendorPersonal(@Body() dto: EditPersonal, @GetUser() vendor: Vendor) {
+  //   return this.vendorService.updateVendorData(dto, vendor);
+  // }
 
   @UseGuards(JwtGuard)
   @Patch('/professional')
@@ -30,9 +30,9 @@ export class VendorController {
     return this.vendorService.updateVendorData(dto, vendor);
   }
 
-  @UseGuards(JwtGuard)
-  @Patch('/image')
-  changeImage(@Body() dto: Image, @GetUser() vendor: Vendor) {
-    return this.vendorService.updateVendorData(dto, vendor);
-  }
+  // @UseGuards(JwtGuard)
+  // @Patch('/image')
+  // changeImage(@Body() dto: Image, @GetUser() vendor: Vendor) {
+  //   return this.vendorService.updateVendorData(dto, vendor);
+  // }
 }

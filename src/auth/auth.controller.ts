@@ -40,9 +40,9 @@ export class AuthController {
     return this.authService.signupVendor(dto, user);
   }
 
-  @HttpCode(HttpStatus.OK)
-  @Post('signin/vendor')
-  signinVendor(@Body() dto: SigninDto) {
-    return this.authService.signinVendor(dto);
-  }
+  // @HttpCode(HttpStatus.OK)
+  // @Post('signin/vendor')
+  // signinVendor(@Body() dto: SigninDto) {
+  //   return this.authService.signinVendor(dto);
+  // }
 }

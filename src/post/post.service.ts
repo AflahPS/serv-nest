@@ -88,9 +88,6 @@ export class PostService {
 
   async likePost(user: User | Vendor, postId: string | ObjId) {
     try {
-      if ('service' in user) {
-        throw new ForbiddenException('Vendors are not allowed to hit likes !');
-      }
       const prepLike = new this.likeModel({
         post: postId,
         user: user._id,
@@ -119,7 +116,9 @@ export class PostService {
 
   async getLikesOfPost(postId: string | ObjId) {
     try {
-      const likes = await this.likeModel.find({ post: postId });
+      const likes = await this.likeModel
+        .find({ post: postId })
+        .populate({ path: 'user', select: 'name image' });
       return { results: likes.length, likes: likes };
     } catch (err) {
       thrower(err);

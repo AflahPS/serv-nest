@@ -59,7 +59,22 @@ export class UserService {
     try {
       await this.userModel.findByIdAndDelete(id);
     } catch (err) {
-      console.error(err);
+      thrower(err);
+    }
+  }
+
+  async findByIdAndUpdate(
+    id: string | mongoose.Schema.Types.ObjectId,
+    payload: any,
+  ) {
+    try {
+      const updatedUser = await this.userModel.findByIdAndUpdate(id, payload, {
+        new: true,
+        runValidators: true,
+      });
+      return updatedUser;
+    } catch (err) {
+      thrower(err);
     }
   }
 

@@ -6,7 +6,6 @@ import { SigninDto, SignupDto, SignupVendor } from './dto';
 import { UserService } from 'src/user/user.service';
 import { VendorService } from 'src/vendor/vendor.service';
 import { Newbie, User } from 'src/user/user.model';
-import { Vendor } from 'src/vendor/vendor.model';
 import { thrower } from 'src/utils';
 
 @Injectable()
@@ -36,6 +35,7 @@ export class AuthService {
 
   async signup(dto: SignupDto) {
     try {
+      Object.assign(dto, { role: 'user' });
       const newUser = await this.userService.addUser(dto);
       const token = await this.signToken(
         newUser._id,
@@ -66,46 +66,44 @@ export class AuthService {
   }
 
   async signupVendor(dto: SignupVendor, user: Newbie | User) {
-    const combined: Vendor = {
-      ...dto,
-      name: user.name,
-      email: user.email,
-      password: user.password,
-    };
     try {
-      const newVendor = await this.vendorService.addVendor(combined);
-      await this.userService.findByIdAndDelete(user._id);
+      dto.user = user._id;
+      const newVendor = await this.vendorService.addVendor(dto);
+      const updatedUser = await this.userService.findByIdAndUpdate(user._id, {
+        role: 'vendor',
+        vendor: newVendor._id,
+      });
       const token = await this.signToken(
-        newVendor._id,
-        newVendor.email,
-        newVendor.password,
+        updatedUser._id,
+        updatedUser.email,
+        updatedUser.password,
       );
-      delete newVendor.password;
+      delete updatedUser.password;
       return { status: 'success', token, user: newVendor };
     } catch (err: any) {
       thrower(err);
     }
   }
 
-  async signinVendor(dto: SigninDto) {
-    try {
-      const vendor = await this.vendorService.findVendorByEmail({
-        email: dto.email,
-      });
-      const isVerified = await this.userService.verifyUser(
-        dto.password,
-        vendor.password,
-      );
-      if (!isVerified) throw new NotFoundException('Email/password wrong !');
-      const token = await this.signToken(
-        vendor._id,
-        vendor.email,
-        vendor.password,
-      );
-      delete vendor.password;
-      return { status: 'success', token, user: vendor };
-    } catch (err: any) {
-      thrower(err);
-    }
-  }
+  // async signinVendor(dto: SigninDto) {
+  //   try {
+  //     const vendor = await this.userService.({
+  //       email: dto.email,
+  //     });
+  //     const isVerified = await this.userService.verifyUser(
+  //       dto.password,
+  //       vendor.password,
+  //     );
+  //     if (!isVerified) throw new NotFoundException('Email/password wrong !');
+  //     const token = await this.signToken(
+  //       vendor._id,
+  //       vendor.email,
+  //       vendor.password,
+  //     );
+  //     delete vendor.password;
+  //     return { status: 'success', token, user: vendor };
+  //   } catch (err: any) {
+  //     thrower(err);
+  //   }
+  // }
 }

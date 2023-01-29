@@ -21,4 +21,6 @@ export class SignupDto {
   @Length(6, 20)
   @Match('password')
   repeatPassword: string;
+
+  role?: string;
 }
