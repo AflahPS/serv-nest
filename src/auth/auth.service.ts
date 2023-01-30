@@ -69,17 +69,17 @@ export class AuthService {
     try {
       dto.user = user._id;
       const newVendor = await this.vendorService.addVendor(dto);
-      const updatedUser = await this.userService.findByIdAndUpdate(user._id, {
-        role: 'vendor',
-        vendor: newVendor._id,
-      });
+      const updatedUser = await this.userService.makeVendor(
+        user._id,
+        newVendor._id,
+      );
       const token = await this.signToken(
         updatedUser._id,
         updatedUser.email,
         updatedUser.password,
       );
       delete updatedUser.password;
-      return { status: 'success', token, user: newVendor };
+      return { status: 'success', token, user: updatedUser };
     } catch (err: any) {
       thrower(err);
     }

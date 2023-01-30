@@ -4,15 +4,20 @@ import { Model } from 'mongoose';
 import { Vendor } from './vendor.model';
 import { thrower } from 'src/utils';
 import { SignupVendor } from 'src/auth/dto';
+import { EditProfessional } from './dto';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class VendorService {
   constructor(
     @InjectModel('Vendor') private readonly vendorModel: Model<Vendor>,
+    private userService: UserService,
   ) {}
 
-  async addVendor(dto: SignupVendor): Promise<Vendor> {
+  async addVendor(dto: SignupVendor) {
     try {
+      console.log({ dto });
+
       // Saving the vendor to the database
       const newVendor = new this.vendorModel(dto);
       const addedVendor = await newVendor.save();
@@ -23,33 +28,6 @@ export class VendorService {
       thrower(err);
     }
   }
-
-  // async findVendorById(id: string): Promise<Vendor> {
-  //   let vendor: Vendor;
-  //   try {
-  //     vendor = await this.vendorModel.findById(id, { __v: 0 }).exec();
-  //   } catch (err) {
-  //     throw new NotFoundException(err.message || 'Something went wrong');
-  //   }
-  //   if (!vendor) throw new NotFoundException('Could not find vendor');
-  //   delete vendor.password;
-  //   return vendor;
-  // }
-
-  // async findVendorByEmail(obj: { email: string }): Promise<Vendor> {
-  //   let vendor: Vendor;
-  //   try {
-  //     vendor = await this.vendorModel
-  //       .findOne(obj, { __v: 0 })
-  //       .populate('service')
-  //       .exec();
-  //   } catch (err) {
-  //     throw new NotFoundException(err.message || 'Something went wrong');
-  //   }
-  //   if (!vendor) throw new NotFoundException('Email/password is wrong !!');
-  //   delete vendor.password;
-  //   return vendor;
-  // }
 
   async findAllVendors(): Promise<Vendor[]> {
     try {
@@ -62,16 +40,26 @@ export class VendorService {
     }
   }
 
-  async updateVendorData(dto: any, vendor: Vendor) {
+  async updateVendorData(dto: EditProfessional, user: Vendor) {
     try {
-      const prepData = Object.assign(vendor, dto);
+      const prepData = {
+        user: user._id,
+        service: dto.service,
+        about: dto.about,
+        workingDays: dto.workingDays,
+        workRadius: dto.workRadius,
+        experience: dto.experience,
+      };
+
       const updatedVendor = await this.vendorModel.findByIdAndUpdate(
-        prepData._id,
+        user.vendor,
         prepData,
-        { new: true, runValidators: true },
       );
-      delete updatedVendor.password;
-      return { status: 'success', user: updatedVendor };
+      const updatedUser = await this.userService.findUserById(
+        updatedVendor.user,
+      );
+      // const updatedUser =  await this.
+      return { status: 'success', user: updatedUser };
     } catch (err) {
       thrower(err);
     }

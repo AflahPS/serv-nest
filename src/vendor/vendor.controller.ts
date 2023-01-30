@@ -9,18 +9,6 @@ import { EditProfessional } from './dto';
 export class VendorController {
   constructor(private vendorService: VendorService) {}
 
-  // @Get('/:id')
-  // getSingleVendor(@Param() params: { id: string }) {
-  //   return params.id;
-  //   // return this.vendorService.findVendorById(params.id);
-  // }
-
-  // @UseGuards(JwtGuard)
-  // @Patch('/personal')
-  // editVendorPersonal(@Body() dto: EditPersonal, @GetUser() vendor: Vendor) {
-  //   return this.vendorService.updateVendorData(dto, vendor);
-  // }
-
   @UseGuards(JwtGuard)
   @Patch('/professional')
   editVendorProfessional(
@@ -29,10 +17,4 @@ export class VendorController {
   ) {
     return this.vendorService.updateVendorData(dto, vendor);
   }
-
-  // @UseGuards(JwtGuard)
-  // @Patch('/image')
-  // changeImage(@Body() dto: Image, @GetUser() vendor: Vendor) {
-  //   return this.vendorService.updateVendorData(dto, vendor);
-  // }
 }

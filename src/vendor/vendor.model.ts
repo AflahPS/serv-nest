@@ -9,8 +9,9 @@ export const vendorSchema = new mongoose.Schema(
       index: true,
     },
     service: {
-      type: String,
-      required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Service',
+      index: true,
     },
     about: {
       type: String,

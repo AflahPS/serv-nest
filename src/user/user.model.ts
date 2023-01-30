@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { Vendor } from 'src/vendor/vendor.model';
 
 export const userSchema = new mongoose.Schema(
   {
@@ -76,7 +77,7 @@ export interface User {
   name: string;
   email: string;
   password: string;
-  role: string;
+  role?: string;
   image?: string;
   location?: { type: string; coordinates: [number] };
   place: string;
@@ -86,4 +87,5 @@ export interface User {
   createdAt?: Date;
   updatedAt?: Date;
   _id?: string | mongoose.Schema.Types.ObjectId;
+  vendor?: string | mongoose.Schema.Types.ObjectId | Vendor;
 }
