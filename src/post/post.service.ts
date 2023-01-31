@@ -60,7 +60,7 @@ export class PostService {
       console.log(`Add some algorithm in here for ${id}`);
       const posts = await this.postModel
         .find()
-        .sort('createdAt')
+        .sort('-createdAt')
         .limit(10)
         .populate('owner')
         .exec();
@@ -92,7 +92,6 @@ export class PostService {
         post: postId,
         user: user._id,
       });
-
       const newLike = await prepLike.save();
       if (newLike) return { status: 'success' };
       return { status: 'Something went wrong !!' };
@@ -135,8 +134,8 @@ export class PostService {
 
       // Combine new+old data and save
       Object.assign(post, dto);
-      await post.save();
-      return post;
+      const newPost = await post.save();
+      return { status: 'success', post: newPost };
     } catch (err) {
       thrower(err);
     }
@@ -153,7 +152,7 @@ export class PostService {
         .exec();
       console.log(post);
 
-      return post;
+      return { status: 'success', post };
     } catch (err) {
       thrower(err);
     }

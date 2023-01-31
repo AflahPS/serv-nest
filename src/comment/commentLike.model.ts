@@ -2,11 +2,11 @@ import * as mongoose from 'mongoose';
 import { User } from 'src/user/user.model';
 import { ObjId } from 'src/utils';
 
-export const likeSchema = new mongoose.Schema(
+export const commentLikeSchema = new mongoose.Schema(
   {
-    post: {
+    comment: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Post',
+      ref: 'Comment',
       required: true,
       index: true,
     },
@@ -18,9 +18,9 @@ export const likeSchema = new mongoose.Schema(
   {
     timestamps: true,
   },
-).index({ post: 1, user: 1 }, { unique: true });
+).index({ comment: 1, user: 1 }, { unique: true });
 
-export interface Like extends mongoose.Document {
-  post: string | ObjId;
+export interface CommentLike extends mongoose.Document {
+  comment: string | ObjId;
   user: User | ObjId | string;
 }

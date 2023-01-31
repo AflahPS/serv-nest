@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { VendorModule } from './vendor/vendor.module';
 import { ServiceModule } from './service/service.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ServiceModule } from './service/service.module';
     ),
     VendorModule,
     ServiceModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
