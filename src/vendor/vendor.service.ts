@@ -68,9 +68,14 @@ export class VendorService {
   async findVendorByService(serviceId: string) {
     try {
       const vendors = await this.vendorModel
-        .find({ service: serviceId }, { password: 0 })
+        .find({ service: serviceId })
+        .populate('user')
         .exec();
-      return { results: vendors.length, vendors };
+      console.log(
+        '🚀 ~ file: vendor.service.ts:74 ~ VendorService ~ findVendorByService ~ vendors',
+        vendors,
+      );
+      return { status: 'success', results: vendors.length, vendors };
     } catch (err) {
       thrower(err);
     }

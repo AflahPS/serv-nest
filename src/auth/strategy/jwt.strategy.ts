@@ -21,7 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     exp: string;
   }) {
     try {
-      const user = await this.userService.findUserById(payload.sub);
+      const { user } = await this.userService.findUserById(payload.sub);
       if (user) {
         const isVerified = user.password === payload.password;
         if (!isVerified) throw new ForbiddenException('Unauthorized !');

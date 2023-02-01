@@ -25,10 +25,10 @@ export class ServiceService {
     }
   }
 
-  async findAllServices(): Promise<Service[]> {
+  async findAllServices() {
     try {
       const services = await this.serviceModel.find({}, { __v: 0 }).exec();
-      return services;
+      return { status: 'success', results: services.length, services };
     } catch (err) {
       thrower(err);
     }

@@ -27,7 +27,9 @@ export class CommentService {
 
   async getCommentsOfPost(postId: ObjId | string) {
     try {
-      const comments = await this.commentModel.find({ post: postId });
+      const comments = await this.commentModel
+        .find({ post: postId })
+        .populate({ path: 'user', select: 'name image' });
       return { status: 'success', results: comments.length, comments };
     } catch (err) {
       thrower(err);
@@ -56,6 +58,8 @@ export class CommentService {
       });
       console.log(res);
       if (res) return { status: 'success' };
-    } catch (err) {}
+    } catch (err) {
+      thrower(err);
+    }
   }
 }

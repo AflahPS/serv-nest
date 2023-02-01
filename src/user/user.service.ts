@@ -45,7 +45,7 @@ export class UserService {
       }
       if (!user) throw new NotFoundException('Could not find user');
       delete user.password;
-      return user;
+      return { status: 'success', user };
     } catch (err) {
       throw new NotFoundException(err.message || 'Something went wrong');
     }
