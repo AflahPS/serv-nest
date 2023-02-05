@@ -157,4 +157,65 @@ export class UserService {
       thrower(err);
     }
   }
+
+  async findUserByKey(key: string) {
+    try {
+      const pattern = new RegExp(key, 'g');
+      const users = await this.userModel
+        .find({
+          name: { $regex: pattern },
+        })
+        .select('name email image');
+      return { status: 'success', users };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async follow(userId: string | ObjId, followerId: string) {
+    try {
+      const user = await this.userModel.findByIdAndUpdate(
+        userId,
+        {
+          $addToSet: { followers: followerId },
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
+      return { status: 'success', user };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async unfollow(userId: string | ObjId, followerId: string) {
+    try {
+      const user = await this.userModel.findByIdAndUpdate(
+        userId,
+        {
+          $pull: { followers: followerId },
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
+      return { status: 'success', user };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getFollowers(userId: string) {
+    const userData = await this.userModel
+      .findById(userId)
+      .populate('followers');
+    return {
+      status: 'success',
+      results: userData.followers.length,
+      followers: userData.followers,
+    };
+  }
 }

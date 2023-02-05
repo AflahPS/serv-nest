@@ -31,9 +31,9 @@ export const userSchema = new mongoose.Schema(
     },
     place: String,
     phone: String,
-    followers: [mongoose.Schema.Types.ObjectId],
-    following: [mongoose.Schema.Types.ObjectId],
-    requests: [mongoose.Schema.Types.ObjectId],
+    followers: { type: [mongoose.Schema.Types.ObjectId], ref: 'User' },
+    following: { type: [mongoose.Schema.Types.ObjectId], ref: 'User' },
+    // requests: [mongoose.Schema.Types.ObjectId],
     role: {
       type: String,
       enum: ['user', 'admin', 'vendor'],
