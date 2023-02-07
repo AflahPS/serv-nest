@@ -17,7 +17,7 @@ export class EditProfessional {
   experience: string;
 
   @IsNotEmpty()
-  @Length(2, 250)
+  @Length(2, 400)
   about: string;
 
   employees: string[];

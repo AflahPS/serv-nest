@@ -72,6 +72,7 @@ export class AuthService {
       const updatedUser = await this.userService.makeVendor(
         user._id,
         newVendor._id,
+        dto,
       );
       const token = await this.signToken(
         updatedUser._id,

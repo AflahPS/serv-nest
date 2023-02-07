@@ -51,6 +51,8 @@ export class VendorService {
         experience: dto.experience,
       };
 
+      console.log(prepData);
+
       const updatedVendor = await this.vendorModel.findByIdAndUpdate(
         user.vendor,
         prepData,
@@ -58,8 +60,12 @@ export class VendorService {
       const updatedUser = await this.userService.findUserById(
         updatedVendor.user,
       );
+      console.log(
+        '🚀 ~ file: vendor.service.ts:61 ~ VendorService ~ updateVendorData ~ updatedUser',
+        updatedUser,
+      );
       // const updatedUser =  await this.
-      return { status: 'success', user: updatedUser };
+      return { ...updatedUser };
     } catch (err) {
       thrower(err);
     }

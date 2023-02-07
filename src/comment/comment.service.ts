@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Comment } from './comment.model';
@@ -19,7 +23,11 @@ export class CommentService {
       dto.user = userId;
       const prepComment = new this.commentModel(dto);
       const newComment = await prepComment.save();
-      return { status: 'success', comment: newComment };
+      const comment = await newComment.populate({
+        path: 'user',
+        select: 'name image',
+      });
+      return { status: 'success', comment };
     } catch (err) {
       thrower(err);
     }
@@ -29,7 +37,8 @@ export class CommentService {
     try {
       const comments = await this.commentModel
         .find({ post: postId })
-        .populate({ path: 'user', select: 'name image' });
+        .populate({ path: 'user', select: 'name image' })
+        .sort('-createdAt');
       return { status: 'success', results: comments.length, comments };
     } catch (err) {
       thrower(err);
@@ -58,6 +67,35 @@ export class CommentService {
       });
       console.log(res);
       if (res) return { status: 'success' };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getCommentLikes(id: string) {
+    try {
+      const commentLikes = await this.commentLikeModel.find({ comment: id });
+      return {
+        status: 'success',
+        results: commentLikes.length,
+        likes: commentLikes,
+      };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async deleteCommentById(id: string, userId: string | ObjId) {
+    try {
+      const comment = await this.commentModel.findById(id);
+      if (!comment) {
+        throw new NotFoundException('Comment not found !');
+      }
+      if (comment.user.toString() !== userId.toString()) {
+        throw new ForbiddenException('User not authorized for this acion !');
+      }
+      await comment.remove();
+      return { status: 'success' };
     } catch (err) {
       thrower(err);
     }

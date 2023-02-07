@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -29,6 +30,11 @@ export class CommentController {
     return this.commentService.getCommentsOfPost(params.id);
   }
 
+  @Get('/like/:id')
+  async getCommentLikes(@Param() params: MongoId) {
+    return this.commentService.getCommentLikes(params.id);
+  }
+
   @UseGuards(JwtGuard)
   @Patch('/like/:id')
   async likeComment(@Param() params: MongoId, @GetUser() user: User) {
@@ -39,5 +45,11 @@ export class CommentController {
   @Patch('/dislike/:id')
   async dislikeComment(@Param() params: MongoId, @GetUser() user: User) {
     return this.commentService.dislikeComment(params.id, user._id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete(':id')
+  async deleteCommentById(@Param() params: MongoId, @GetUser() user: User) {
+    return this.commentService.deleteCommentById(params.id, user._id);
   }
 }

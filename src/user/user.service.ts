@@ -8,7 +8,7 @@ import { Model } from 'mongoose';
 import * as argon from 'argon2';
 
 import { Newbie, User } from './user.model';
-import { SignupDto } from 'src/auth/dto';
+import { SignupDto, SignupVendor } from 'src/auth/dto';
 import { ObjId, thrower } from 'src/utils';
 
 @Injectable()
@@ -134,7 +134,11 @@ export class UserService {
     }
   }
 
-  async makeVendor(userId: string | ObjId, vendorId: string | ObjId) {
+  async makeVendor(
+    userId: string | ObjId,
+    vendorId: string | ObjId,
+    dto: SignupVendor,
+  ) {
     try {
       let updatedUser = await this.userModel
         .findByIdAndUpdate(
@@ -142,6 +146,8 @@ export class UserService {
           {
             role: 'vendor',
             vendor: vendorId,
+            place: dto?.place,
+            location: dto?.location,
           },
           {
             new: true,
@@ -184,6 +190,16 @@ export class UserService {
           runValidators: true,
         },
       );
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const followee = await this.userModel.findByIdAndUpdate(
+        followerId,
+        {
+          $addToSet: { followers: userId },
+        },
+        {
+          runValidators: true,
+        },
+      );
       return { status: 'success', user };
     } catch (err) {
       thrower(err);
@@ -199,6 +215,16 @@ export class UserService {
         },
         {
           new: true,
+          runValidators: true,
+        },
+      );
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const unfollowee = await this.userModel.findByIdAndUpdate(
+        followerId,
+        {
+          $pull: { followers: userId },
+        },
+        {
           runValidators: true,
         },
       );
