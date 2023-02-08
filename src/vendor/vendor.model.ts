@@ -20,9 +20,9 @@ export const vendorSchema = new mongoose.Schema(
     workingDays: String,
     workRadius: String,
     experience: Number,
-    employees: [mongoose.Schema.Types.ObjectId],
+    employees: { type: [mongoose.Schema.Types.ObjectId], ref: 'Employee' },
     jobs: [mongoose.Schema.Types.ObjectId],
-    projects: [mongoose.Schema.Types.ObjectId],
+    projects: { type: [mongoose.Schema.Types.ObjectId], ref: 'Project' },
   },
   {
     timestamps: true,

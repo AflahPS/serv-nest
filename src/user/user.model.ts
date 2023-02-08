@@ -32,7 +32,6 @@ export const userSchema = new mongoose.Schema(
     place: String,
     phone: String,
     followers: { type: [mongoose.Schema.Types.ObjectId], ref: 'User' },
-    following: { type: [mongoose.Schema.Types.ObjectId], ref: 'User' },
     // requests: [mongoose.Schema.Types.ObjectId],
     role: {
       type: String,
@@ -87,5 +86,6 @@ export interface User {
   createdAt?: Date;
   updatedAt?: Date;
   _id?: string | mongoose.Schema.Types.ObjectId;
-  vendor?: string | mongoose.Schema.Types.ObjectId | Vendor;
+  // vendor?: string | mongoose.Schema.Types.ObjectId | Vendor;
+  vendor?: Vendor;
 }

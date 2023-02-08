@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Vendor } from './vendor.model';
-import { thrower } from 'src/utils';
+import { ObjId, thrower } from 'src/utils';
 import { SignupVendor } from 'src/auth/dto';
 import { EditProfessional } from './dto';
 import { UserService } from 'src/user/user.service';
@@ -60,10 +60,6 @@ export class VendorService {
       const updatedUser = await this.userService.findUserById(
         updatedVendor.user,
       );
-      console.log(
-        '🚀 ~ file: vendor.service.ts:61 ~ VendorService ~ updateVendorData ~ updatedUser',
-        updatedUser,
-      );
       // const updatedUser =  await this.
       return { ...updatedUser };
     } catch (err) {
@@ -82,6 +78,32 @@ export class VendorService {
         vendors,
       );
       return { status: 'success', results: vendors.length, vendors };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async addEmployee(empId: string | ObjId, vendorId: string | ObjId) {
+    try {
+      const updatedVendor = await this.vendorModel.findByIdAndUpdate(
+        vendorId,
+        { $addToSet: { employees: empId } },
+        { new: true, runValidators: true },
+      );
+      return { status: 'success', vendor: updatedVendor };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async removeEmployee(empId: string | ObjId, vendorId: string | ObjId) {
+    try {
+      const updatedVendor = await this.vendorModel.findByIdAndUpdate(
+        vendorId,
+        { $pull: { employees: empId } },
+        { new: true, runValidators: true },
+      );
+      return { status: 'success', vendor: updatedVendor };
     } catch (err) {
       thrower(err);
     }
