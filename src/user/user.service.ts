@@ -164,6 +164,15 @@ export class UserService {
     }
   }
 
+  async checkIfVendor(userId: string | ObjId) {
+    try {
+      const user = await this.userModel.findById(userId);
+      return user?.role === 'vendor';
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
   async findUserByKey(key: string) {
     try {
       const pattern = new RegExp(key, 'g');

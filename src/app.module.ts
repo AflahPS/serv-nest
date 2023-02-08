@@ -9,6 +9,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { VendorModule } from './vendor/vendor.module';
 import { ServiceModule } from './service/service.module';
 import { CommentModule } from './comment/comment.module';
+import { AppointmentModule } from './appointment/appointment.module';
+import { ProjectModule } from './project/project.module';
+import { NotificationModule } from './notification/notification.module';
+import { ChatModule } from './chat/chat.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -24,6 +29,11 @@ import { CommentModule } from './comment/comment.module';
     VendorModule,
     ServiceModule,
     CommentModule,
+    AppointmentModule,
+    ProjectModule,
+    NotificationModule,
+    ChatModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
