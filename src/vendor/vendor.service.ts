@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Vendor } from './vendor.model';
-import { ObjId, thrower } from 'src/utils';
+import { ObjId, returner, thrower } from 'src/utils';
 import { SignupVendor } from 'src/auth/dto';
 import { EditProfessional } from './dto';
 import { UserService } from 'src/user/user.service';
@@ -104,6 +104,22 @@ export class VendorService {
         { new: true, runValidators: true },
       );
       return { status: 'success', vendor: updatedVendor };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getVendorCountByService() {
+    try {
+      const vendorCount = await this.vendorModel.aggregate([
+        {
+          $group: {
+            _id: '$service',
+            count: { $count: {} },
+          },
+        },
+      ]);
+      return returner({ vendorCount });
     } catch (err) {
       thrower(err);
     }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -73,5 +74,14 @@ export class UserController {
   @Patch('unfollow/:id')
   unfollow(@GetUser() user: User, @Param() params: MongoId) {
     return this.userService.unfollow(user._id, params.id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('/role/:role')
+  findUserByRole(@GetUser() user: User, @Param('role') role: string) {
+    if (user.role !== 'admin' && user.role !== 'super-admin') {
+      throw new ForbiddenException('Unauthorized user !');
+    }
+    return this.userService.findUserByRole(role);
   }
 }

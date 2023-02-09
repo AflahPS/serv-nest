@@ -9,26 +9,34 @@ import * as argon from 'argon2';
 
 import { Newbie, User } from './user.model';
 import { SignupDto, SignupVendor } from 'src/auth/dto';
-import { ObjId, thrower } from 'src/utils';
+import { ObjId, returner, thrower } from 'src/utils';
 
 @Injectable()
 export class UserService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
-  async addUser(dto: SignupDto): Promise<Newbie> {
-    // Hashing the user password
-    const hashed = await argon.hash(dto.password);
-    dto.password = hashed;
-
-    // Saving the user to the database
-    const newUser = new this.userModel(dto);
-    const addedUser = await newUser.save();
-
-    return addedUser;
+  async verifyUser(password: string, hashedPassword: string): Promise<boolean> {
+    try {
+      return await argon.verify(hashedPassword, password);
+    } catch (err) {
+      thrower(err);
+    }
   }
 
-  async verifyUser(password: string, hashedPassword: string): Promise<boolean> {
-    return await argon.verify(hashedPassword, password);
+  async addUser(dto: SignupDto): Promise<Newbie> {
+    try {
+      // Hashing the user password
+      const hashed = await argon.hash(dto.password);
+      dto.password = hashed;
+
+      // Saving the user to the database
+      const newUser = new this.userModel(dto);
+      const addedUser = await newUser.save();
+
+      return addedUser;
+    } catch (err) {
+      thrower(err);
+    }
   }
 
   async findUserById(id: string | ObjId) {
@@ -45,9 +53,24 @@ export class UserService {
       }
       if (!user) throw new NotFoundException('Could not find user');
       delete user.password;
-      return { status: 'success', user };
+      return returner({ user });
     } catch (err) {
-      throw new NotFoundException(err.message || 'Something went wrong');
+      thrower(err);
+    }
+  }
+
+  async findUserByRole(role: string) {
+    try {
+      const users = await this.userModel.find({ role }).populate([
+        {
+          path: 'vendor',
+          strictPopulate: false,
+        },
+      ]);
+
+      return returner({ results: users.length, users });
+    } catch (err) {
+      thrower(err);
     }
   }
 
@@ -57,10 +80,12 @@ export class UserService {
       //  "Cannot read properties of null (reading 'role')"
       // ` is gone after purging the db
 
-      let user = await this.userModel.findOne(obj, { __v: 0 }).populate({
-        path: 'vendor',
-        model: 'Vendor',
-      });
+      let user = await this.userModel.findOne(obj, { __v: 0 }).populate([
+        {
+          path: 'vendor',
+          strictPopulate: false,
+        },
+      ]);
 
       if (
         'vendor' in user &&
@@ -69,8 +94,6 @@ export class UserService {
       ) {
         user = await user.populate('vendor.service');
       }
-
-      // await user.populate('vendor.service');
 
       if (!user) throw new ForbiddenException('Email/password is wrong !!');
       delete user.password;

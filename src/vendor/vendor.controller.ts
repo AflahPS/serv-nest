@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
+  Get,
   Param,
   Patch,
   Post,
@@ -13,6 +15,7 @@ import { Vendor } from './vendor.model';
 import { EditProfessional } from './dto';
 import { MongoId } from 'src/utils';
 import { User } from 'src/user/user.model';
+import { checkIfAdmin } from 'src/utils/util.functions';
 
 @Controller('vendor')
 export class VendorController {
@@ -37,5 +40,13 @@ export class VendorController {
   @Patch('/employee/:id')
   removeEmployee(@Param() params: MongoId, @GetUser() user: User) {
     return this.vendorService.removeEmployee(params.id, user.vendor?._id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('/service/count')
+  getVendorCountByService(@GetUser() user: User) {
+    if (!checkIfAdmin(user))
+      throw new ForbiddenException('Unauthorized access is not allowed');
+    return this.vendorService.getVendorCountByService();
   }
 }
