@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -15,6 +16,7 @@ import { GetUser } from 'src/auth/decorator';
 import { MongoId, ObjId, thrower } from 'src/utils';
 import { Vendor } from 'src/vendor/vendor.model';
 import { User } from 'src/user/user.model';
+import { checkIfAdmin } from 'src/utils/util.functions';
 
 @Controller('post')
 export class PostController {
@@ -31,6 +33,18 @@ export class PostController {
 
     try {
       return await this.postService.createPost(dto);
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  @Get('all')
+  @UseGuards(JwtGuard)
+  async getAllPosts(@GetUser() user: User) {
+    try {
+      if (!checkIfAdmin(user))
+        throw new ForbiddenException('Unauthorized access is not allowed');
+      return await this.postService.getAllPosts();
     } catch (err) {
       thrower(err);
     }

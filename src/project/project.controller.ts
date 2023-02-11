@@ -14,6 +14,7 @@ import { Create } from './dto/Create.dto';
 import { GetUser } from 'src/auth/decorator';
 import { User } from 'src/user/user.model';
 import { MongoId } from 'src/utils';
+import { checkIfAdmin } from 'src/utils/util.functions';
 
 @Controller('project')
 export class ProjectController {
@@ -39,6 +40,16 @@ export class ProjectController {
   getProjectsByVendor(@GetUser() user: User) {
     this.isVendor(user.role);
     return this.projectService.getProjectsByVendor(user.vendor?._id.toString());
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('all')
+  getAllProjects(@GetUser() user: User) {
+    if (!checkIfAdmin(user))
+      throw new ForbiddenException(
+        'You are not authorized to perform this action !',
+      );
+    return this.projectService.getAllProjects();
   }
 
   @UseGuards(JwtGuard)

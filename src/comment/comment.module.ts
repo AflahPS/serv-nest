@@ -14,5 +14,6 @@ import { commentLikeSchema } from './commentLike.model';
   ],
   controllers: [CommentController],
   providers: [CommentService],
+  exports: [CommentService],
 })
 export class CommentModule {}

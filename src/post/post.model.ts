@@ -9,7 +9,7 @@ export const postSchema = new mongoose.Schema(
     },
     mediaType: {
       type: String,
-      enum: ['image', 'video', 'none'],
+      enum: ['image', 'video', 'none', 'mixed'],
     },
     reports: [mongoose.Schema.Types.ObjectId],
     media: [String],

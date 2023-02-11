@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Comment } from './comment.model';
 import { CommentLike } from './commentLike.model';
 import { ObjId, thrower } from 'src/utils';
@@ -96,6 +96,25 @@ export class CommentService {
       }
       await comment.remove();
       return { status: 'success' };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getCommentCountOfPost(postId: string) {
+    try {
+      const commentsCount = await this.commentModel.aggregate([
+        {
+          $match: {
+            post: new mongoose.Types.ObjectId(postId),
+          },
+        },
+        {
+          $count: 'commentCount',
+        },
+      ]);
+      if (!commentsCount.length) return 0;
+      return commentsCount[0].commentCount;
     } catch (err) {
       thrower(err);
     }

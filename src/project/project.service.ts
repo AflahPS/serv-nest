@@ -36,6 +36,25 @@ export class ProjectService {
     }
   }
 
+  async getAllProjects() {
+    try {
+      const projects = await this.projectModel
+        .find()
+        .populate('client')
+        .populate({
+          path: 'vendor',
+          populate: {
+            path: 'user',
+            model: 'User',
+          },
+        })
+        .populate('service');
+      return returner({ results: projects.length, projects });
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
   async deleteProject(projId: string, vendorId: string) {
     try {
       const project = await this.projectModel.findById(projId);

@@ -4,6 +4,7 @@ import { PostService } from './post.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { postSchema } from './post.model';
 import { likeSchema } from './like.model';
+import { CommentModule } from 'src/comment/comment.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { likeSchema } from './like.model';
       { name: 'Post', schema: postSchema },
       { name: 'Like', schema: likeSchema },
     ]),
+    CommentModule,
   ],
   controllers: [PostController],
   providers: [PostService],

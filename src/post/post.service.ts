@@ -5,18 +5,20 @@ import {
 } from '@nestjs/common';
 import { Create, Edit } from './dto';
 import { Post } from './post.model';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ObjId, thrower } from 'src/utils';
+import { ObjId, returner, thrower } from 'src/utils';
 import { Like } from './like.model';
 import { User } from 'src/user/user.model';
 import { Vendor } from 'src/vendor/vendor.model';
+import { CommentService } from 'src/comment/comment.service';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectModel('Post') private readonly postModel: Model<Post>,
     @InjectModel('Like') private readonly likeModel: Model<Like>,
+    private readonly commentService: CommentService,
   ) {}
 
   async createPost(dto: Create) {
@@ -55,9 +57,9 @@ export class PostService {
   }
 
   // Need something EO-Alg here
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getPostForUser(id: string | ObjId) {
     try {
-      console.log(`Add some algorithm in here for ${id}`);
       const posts = await this.postModel
         .find()
         .sort('-createdAt')
@@ -81,6 +83,51 @@ export class PostService {
         .exec();
       if (!posts.length) throw new NotFoundException('Post not found !!');
       return { posts };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getAllPosts() {
+    try {
+      const posts = await this.postModel
+        .find()
+        .sort('-createdAt')
+        .populate('owner')
+        .exec();
+      if (!posts.length) throw new NotFoundException('Post not found !!');
+      const newPosts = [];
+      for (let i = 0; i < posts.length; i++) {
+        const likes = await this.getLikeCountOfPost(posts[i]._id.toString());
+        const comments = await this.commentService.getCommentCountOfPost(
+          posts[i]._id.toString(),
+        );
+        const clonedPost = posts[i].toObject({
+          getters: false,
+          virtuals: false,
+        });
+        newPosts.push(Object.assign({}, clonedPost, { likes, comments }));
+      }
+      return returner({ results: posts.length, posts: newPosts });
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getLikeCountOfPost(postId: string) {
+    try {
+      const likesCount = await this.likeModel.aggregate([
+        {
+          $match: {
+            post: new mongoose.Types.ObjectId(postId),
+          },
+        },
+        {
+          $count: 'likeCount',
+        },
+      ]);
+      if (!likesCount.length) return 0;
+      return likesCount[0]?.likeCount;
     } catch (err) {
       thrower(err);
     }
@@ -150,7 +197,6 @@ export class PostService {
           { new: true },
         )
         .exec();
-      console.log(post);
 
       return { status: 'success', post };
     } catch (err) {
