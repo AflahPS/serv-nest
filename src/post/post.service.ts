@@ -12,6 +12,7 @@ import { Like } from './like.model';
 import { User } from 'src/user/user.model';
 import { Vendor } from 'src/vendor/vendor.model';
 import { CommentService } from 'src/comment/comment.service';
+import { checkIfAdmin } from 'src/utils/util.functions';
 
 @Injectable()
 export class PostService {
@@ -47,7 +48,7 @@ export class PostService {
         .find({ owner: id })
         .sort('-createdAt')
         .limit(10)
-        .populate('owner')
+        .populate({ path: 'owner', select: 'name image createdAt updatedAt' })
         .exec();
       if (!posts.length) throw new NotFoundException('Post not found !!');
       return { posts };
@@ -64,7 +65,7 @@ export class PostService {
         .find()
         .sort('-createdAt')
         .limit(10)
-        .populate('owner')
+        .populate({ path: 'owner', select: 'name image createdAt updatedAt' })
         .exec();
       if (!posts.length) throw new NotFoundException('Post not found !!');
       return { posts };
@@ -79,7 +80,7 @@ export class PostService {
         .find()
         .sort('-createdAt')
         .limit(10)
-        .populate('owner')
+        .populate({ path: 'owner', select: 'name image createdAt updatedAt' })
         .exec();
       if (!posts.length) throw new NotFoundException('Post not found !!');
       return { posts };
@@ -93,7 +94,10 @@ export class PostService {
       const posts = await this.postModel
         .find()
         .sort('-createdAt')
-        .populate('owner')
+        .populate({
+          path: 'owner',
+          select: 'name image createdAt updatedAt role',
+        })
         .exec();
       if (!posts.length) throw new NotFoundException('Post not found !!');
       const newPosts = [];
@@ -204,20 +208,22 @@ export class PostService {
     }
   }
 
-  async deletePost(uid: ObjId | string, pid: ObjId | string) {
+  async deletePost(user: User, pid: ObjId | string) {
     try {
       const post = await this.postModel.findById(pid);
-      if (post.owner.toString() !== uid.toString())
+      if (post.owner.toString() !== user._id.toString() && !checkIfAdmin(user))
         throw new ForbiddenException(
           'You are not allowed to perform this operation !',
         );
       await post.remove();
+      await this.likeModel.deleteMany({ post: post._id });
+      await this.commentService.deleteCommentsOfPost(post._id as ObjId);
       return { status: 'success' };
     } catch (err) {
       thrower(err);
     }
   }
-  async sharePost(dto) {
-    return dto;
-  }
+  // async sharePost(dto) {
+  //   return dto;
+  // }
 }

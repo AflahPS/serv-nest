@@ -28,6 +28,12 @@ export class AuthController {
     return this.authService.signin(dto);
   }
 
+  @HttpCode(HttpStatus.OK)
+  @Post('signin/admin')
+  signinAdmin(@Body() dto: SigninDto) {
+    return this.authService.signinAdmin(dto);
+  }
+
   @Post('signout')
   signout() {
     return { status: 'success', token: null };

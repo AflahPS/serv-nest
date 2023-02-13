@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   Param,
@@ -13,7 +14,7 @@ import { GetUser } from 'src/auth/decorator';
 import { JwtGuard } from 'src/auth/guard';
 import { Vendor } from './vendor.model';
 import { EditProfessional } from './dto';
-import { MongoId } from 'src/utils';
+import { MongoId, ObjId } from 'src/utils';
 import { User } from 'src/user/user.model';
 import { checkIfAdmin } from 'src/utils/util.functions';
 
@@ -37,7 +38,13 @@ export class VendorController {
   }
 
   @UseGuards(JwtGuard)
-  @Patch('/employee/:id')
+  @Get('/employee')
+  getEmployees(@GetUser() user: User) {
+    return this.vendorService.getEmployees(user.vendor?._id as ObjId);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete('/employee/:id')
   removeEmployee(@Param() params: MongoId, @GetUser() user: User) {
     return this.vendorService.removeEmployee(params.id, user.vendor?._id);
   }

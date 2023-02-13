@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   Param,
@@ -14,7 +15,8 @@ import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/auth/decorator';
 import { User } from './user.model';
 import { Edit, Image } from './dto';
-import { MongoId } from 'src/utils';
+import { MongoId, ObjId } from 'src/utils';
+import { checkIfAdmin } from 'src/utils/util.functions';
 
 @Controller('user')
 export class UserController {
@@ -77,11 +79,53 @@ export class UserController {
   }
 
   @UseGuards(JwtGuard)
+  @Post('save-post/:id')
+  addPostToSaved(@GetUser() user: User, @Param() params: MongoId) {
+    return this.userService.addPostToSaved(user._id as ObjId, params.id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete('save-post/:id')
+  removePostFromSaved(@GetUser() user: User, @Param() params: MongoId) {
+    return this.userService.removePostFromSaved(user._id as ObjId, params.id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('save-post')
+  getSavedPost(@GetUser() user: User) {
+    return this.userService.getSavedPost(user._id as ObjId);
+  }
+
+  @UseGuards(JwtGuard)
   @Get('/role/:role')
   findUserByRole(@GetUser() user: User, @Param('role') role: string) {
-    if (user.role !== 'admin' && user.role !== 'super-admin') {
+    if (!checkIfAdmin(user))
       throw new ForbiddenException('Unauthorized user !');
-    }
+
     return this.userService.findUserByRole(role);
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch('ban/:id')
+  banUser(@GetUser() user: User, @Param() params: MongoId) {
+    if (!checkIfAdmin(user))
+      throw new ForbiddenException('Unauthorized user !');
+    return this.userService.banUser(params.id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch('unban/:id')
+  unbanUser(@GetUser() user: User, @Param() params: MongoId) {
+    if (!checkIfAdmin(user))
+      throw new ForbiddenException('Unauthorized user !');
+    return this.userService.unbanUser(params.id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete(':id')
+  deleteUser(@GetUser() user: User, @Param() params: MongoId) {
+    if (!checkIfAdmin(user))
+      throw new ForbiddenException('Unauthorized user !');
+    return this.userService.deleteUser(params.id);
   }
 }

@@ -32,6 +32,7 @@ export class ProjectController {
   createProject(@Body() dto: Create, @GetUser() user: User) {
     this.isVendor(user.role);
     dto.vendor = user.vendor._id.toString();
+    dto.service = user.vendor?.service?._id as string;
     return this.projectService.createProject(dto);
   }
 
@@ -55,10 +56,6 @@ export class ProjectController {
   @UseGuards(JwtGuard)
   @Delete(':id')
   deleteProject(@Param() params: MongoId, @GetUser() user: User) {
-    this.isVendor(user.role);
-    return this.projectService.deleteProject(
-      params.id,
-      user.vendor?._id.toString(),
-    );
+    return this.projectService.deleteProject(params.id, user);
   }
 }

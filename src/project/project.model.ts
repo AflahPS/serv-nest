@@ -20,8 +20,8 @@ export const projectSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['active', 'completed', 'cancelled'],
-      default: 'active',
+      enum: ['pending', 'running', 'completed', 'cancelled', 'failed'],
+      default: 'pending',
       required: true,
     },
     location: {
@@ -36,6 +36,11 @@ export const projectSchema = new mongoose.Schema(
         required: true,
       },
     },
+    employees: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'User',
+    },
+
     place: {
       type: String,
       required: true,
@@ -68,11 +73,12 @@ export interface Project {
   title: string;
   vendor: string | mongoose.Schema.Types.ObjectId;
   service: string | mongoose.Schema.Types.ObjectId;
-  status: string;
+  status: 'pending' | 'running' | 'completed' | 'cancelled' | 'failed';
   location?: { type: string; coordinates: [number] };
   place: string;
   client: string | mongoose.Schema.Types.ObjectId;
   startDate: Date | string;
   endDate: Date | string;
   caption?: string;
+  employees?: string[];
 }

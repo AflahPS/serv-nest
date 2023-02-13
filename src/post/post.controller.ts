@@ -126,7 +126,7 @@ export class PostController {
 
   @UseGuards(JwtGuard)
   @Delete('/:id')
-  async deletePost(@GetUser() user: Vendor, @Param() params: MongoId) {
-    return await this.postService.deletePost(user._id, params.id);
+  async deletePost(@GetUser() user: User, @Param() params: MongoId) {
+    return await this.postService.deletePost(user, params.id);
   }
 }

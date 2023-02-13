@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import mongoose from 'mongoose';
 
@@ -52,6 +57,29 @@ export class AuthService {
   async signin(dto: SigninDto) {
     try {
       const user = await this.userService.findUserByEmail({ email: dto.email });
+      if (!user) throw new ForbiddenException('Email/password is wrong !!');
+      if (user?.isBanned)
+        throw new ForbiddenException(
+          'Your account is being banned ! Connect with admin for query !',
+        );
+      const isVerified = await this.userService.verifyUser(
+        dto.password,
+        user.password,
+      );
+      if (!isVerified) throw new NotFoundException('Email/password wrong !');
+      const token = await this.signToken(user._id, user.email, user.password);
+      delete user.password;
+      return { status: 'success', token, user };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async signinAdmin(dto: SigninDto) {
+    try {
+      const user = await this.userService.findUserByEmail({ email: dto.email });
+      if (!['admin', 'super-admin'].some((el) => el === user.role))
+        throw new UnauthorizedException('Unauthorized !');
       const isVerified = await this.userService.verifyUser(
         dto.password,
         user.password,

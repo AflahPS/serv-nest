@@ -1,4 +1,6 @@
 import * as mongoose from 'mongoose';
+import { Project } from 'src/project/project.model';
+import { Service } from 'src/service/service.model';
 import { User } from 'src/user/user.model';
 
 export const vendorSchema = new mongoose.Schema(
@@ -20,7 +22,22 @@ export const vendorSchema = new mongoose.Schema(
     workingDays: String,
     workRadius: String,
     experience: Number,
-    employees: { type: [mongoose.Schema.Types.ObjectId], ref: 'Employee' },
+    employees: {
+      type: [
+        {
+          emp: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+          },
+          joined: {
+            type: Date,
+            default: new Date(Date.now()),
+          },
+          projects: { type: [mongoose.Schema.Types.ObjectId], ref: 'Project' },
+        },
+      ],
+    },
     jobs: [mongoose.Schema.Types.ObjectId],
     projects: { type: [mongoose.Schema.Types.ObjectId], ref: 'Project' },
   },
@@ -30,13 +47,19 @@ export const vendorSchema = new mongoose.Schema(
 );
 
 export interface Vendor extends User {
-  user?: string | mongoose.Schema.Types.ObjectId;
-  service: string | mongoose.Schema.Types.ObjectId;
+  user?: User | string;
+  service: Service;
   about: string;
   workingDays?: string;
   workRadius?: string;
   experience?: number;
-  employees?: [string | mongoose.Schema.Types.ObjectId];
+  employees?: [
+    {
+      emp: User;
+      joined: Date;
+      projects: Project[];
+    },
+  ];
   jobs?: [string | mongoose.Schema.Types.ObjectId];
   projects?: [string | mongoose.Schema.Types.ObjectId];
 }

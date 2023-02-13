@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Service } from './service.model';
-import { thrower } from 'src/utils';
+import { returner, thrower } from 'src/utils';
 import { Create } from './dto/Create.dto';
 import { VendorService } from 'src/vendor/vendor.service';
 
@@ -19,7 +19,7 @@ export class ServiceService {
       const newService = new this.serviceModel(dto);
       const addedService = await newService.save();
 
-      return addedService;
+      return returner({ service: addedService });
     } catch (err) {
       thrower(err);
     }
@@ -55,6 +55,16 @@ export class ServiceService {
         { new: true, runValidators: true },
       );
       return { status: 'success', user: updatedService };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async deleteService(serviceId: string) {
+    try {
+      const res = await this.serviceModel.findByIdAndDelete(serviceId);
+      if (res) return returner();
+      return { status: 'failed' };
     } catch (err) {
       thrower(err);
     }

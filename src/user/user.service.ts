@@ -1,12 +1,7 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as argon from 'argon2';
-
 import { Newbie, User } from './user.model';
 import { SignupDto, SignupVendor } from 'src/auth/dto';
 import { ObjId, returner, thrower } from 'src/utils';
@@ -86,7 +81,9 @@ export class UserService {
           strictPopulate: false,
         },
       ]);
-
+      if (!user) throw new NotFoundException('Email or Password wrong !');
+      if (!user?.role || user.role === 'user') return user;
+      if (!['admin', 'super-admin'].some((el) => el === user.role)) return user;
       if (
         'vendor' in user &&
         typeof user.vendor === 'object' &&
@@ -95,7 +92,6 @@ export class UserService {
         user = await user.populate('vendor.service');
       }
 
-      if (!user) throw new ForbiddenException('Email/password is wrong !!');
       delete user.password;
       return user;
     } catch (err) {
@@ -275,5 +271,104 @@ export class UserService {
       results: userData.followers.length,
       followers: userData.followers,
     };
+  }
+
+  async addPostToSaved(userId: ObjId, postId: string) {
+    try {
+      const user = await this.userModel.findByIdAndUpdate(
+        userId,
+        {
+          $addToSet: { savedPosts: postId },
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
+      return returner({ user });
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async removePostFromSaved(userId: ObjId, postId: string) {
+    try {
+      const user = await this.userModel.findByIdAndUpdate(
+        userId,
+        {
+          $pull: { savedPosts: postId },
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
+      return returner({ user });
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getSavedPost(userId: ObjId) {
+    try {
+      const user = await this.userModel
+        .findById(userId)
+        .populate({
+          path: 'savedPosts',
+          populate: { path: 'owner', select: 'name image createdAt updatedAt' },
+        })
+        .select('savedPosts');
+      return returner({ user });
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async banUser(userId: string) {
+    try {
+      const user = await this.userModel.findByIdAndUpdate(
+        userId,
+        {
+          isBanned: true,
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
+      if (user.isBanned) return returner();
+      return { status: 'failed' };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async unbanUser(userId: string) {
+    try {
+      const user = await this.userModel.findByIdAndUpdate(
+        userId,
+        {
+          isBanned: false,
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
+      if (!user.isBanned) return returner();
+      return { status: 'failed' };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async deleteUser(userId: string) {
+    try {
+      const res = await this.userModel.findByIdAndDelete(userId);
+      if (res) return returner();
+      return { status: 'failed' };
+    } catch (err) {
+      thrower(err);
+    }
   }
 }

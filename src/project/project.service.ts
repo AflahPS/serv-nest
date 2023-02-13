@@ -8,6 +8,8 @@ import { Model } from 'mongoose';
 import { Project } from './project.model';
 import { Create } from './dto/Create.dto';
 import { returner, thrower } from 'src/utils';
+import { checkIfAdmin } from 'src/utils/util.functions';
+import { User } from 'src/user/user.model';
 
 @Injectable()
 export class ProjectService {
@@ -29,7 +31,8 @@ export class ProjectService {
     try {
       const projects = await this.projectModel
         .find({ vendor: vendorId })
-        .populate('client');
+        .populate('client')
+        .populate('vendor');
       return returner({ projects });
     } catch (err) {
       thrower(err);
@@ -55,11 +58,14 @@ export class ProjectService {
     }
   }
 
-  async deleteProject(projId: string, vendorId: string) {
+  async deleteProject(projId: string, user: User) {
     try {
       const project = await this.projectModel.findById(projId);
       if (!project) throw new NotFoundException('Document not found !');
-      if (project.vendor.toString() !== vendorId)
+      if (
+        project.vendor.toString() !== user?.vendor?._id.toString() &&
+        !checkIfAdmin(user)
+      )
         throw new ForbiddenException('Unauthorized to perform this action !');
       const res = await project.remove();
       if (res) return returner();

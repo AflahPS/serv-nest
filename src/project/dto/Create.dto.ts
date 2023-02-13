@@ -14,11 +14,11 @@ export class Create {
   vendor: string;
 
   @IsNotEmpty()
-  @IsMongoId()
+  @IsOptional()
   service: string;
 
   @IsOptional()
-  status: 'active' | 'completed' | 'cancelled';
+  status: 'pending' | 'running' | 'completed' | 'cancelled' | 'failed';
 
   @IsNotEmpty()
   location: {
@@ -32,6 +32,9 @@ export class Create {
   @IsOptional()
   @IsMongoId()
   client: string;
+
+  @IsOptional()
+  employees: string[];
 
   @IsNotEmpty()
   @IsDateString()

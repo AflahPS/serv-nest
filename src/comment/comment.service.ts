@@ -101,6 +101,16 @@ export class CommentService {
     }
   }
 
+  async deleteCommentsOfPost(postId: ObjId) {
+    try {
+      const res = await this.commentModel.deleteMany({ post: postId });
+      if (res) return true;
+      return false;
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
   async getCommentCountOfPost(postId: string) {
     try {
       const commentsCount = await this.commentModel.aggregate([

@@ -58,7 +58,7 @@ export class VendorService {
         prepData,
       );
       const updatedUser = await this.userService.findUserById(
-        updatedVendor.user,
+        updatedVendor.user as string,
       );
       // const updatedUser =  await this.
       return { ...updatedUser };
@@ -85,12 +85,35 @@ export class VendorService {
 
   async addEmployee(empId: string | ObjId, vendorId: string | ObjId) {
     try {
+      const vendor = await this.vendorModel.findById(vendorId);
+      if (vendor.employees.find((e) => e.emp.toString() === empId.toString())) {
+        return returner();
+      }
       const updatedVendor = await this.vendorModel.findByIdAndUpdate(
         vendorId,
-        { $addToSet: { employees: empId } },
+        { $addToSet: { employees: { emp: empId } } },
         { new: true, runValidators: true },
       );
-      return { status: 'success', vendor: updatedVendor };
+      const addedEmployee = await updatedVendor.populate({
+        path: 'employees',
+        populate: 'emp projects',
+      });
+      return { status: 'success', vendor: addedEmployee };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getEmployees(vendorId: ObjId) {
+    try {
+      const vendorEmployees = await this.vendorModel
+        .findById(vendorId)
+        .populate({
+          path: 'employees',
+          populate: 'emp projects',
+        });
+      const employees = vendorEmployees?.employees;
+      return { status: 'success', employees };
     } catch (err) {
       thrower(err);
     }
@@ -100,10 +123,14 @@ export class VendorService {
     try {
       const updatedVendor = await this.vendorModel.findByIdAndUpdate(
         vendorId,
-        { $pull: { employees: empId } },
+        { $pull: { employees: { emp: empId } } },
         { new: true, runValidators: true },
       );
-      return { status: 'success', vendor: updatedVendor };
+      const vendorAfterRemoval = await updatedVendor.populate({
+        path: 'employees',
+        populate: 'emp projects',
+      });
+      return { status: 'success', vendor: vendorAfterRemoval };
     } catch (err) {
       thrower(err);
     }

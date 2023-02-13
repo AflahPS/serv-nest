@@ -35,9 +35,16 @@ export const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    savedPosts: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'Post',
+    },
     place: String,
     phone: String,
-    followers: { type: [mongoose.Schema.Types.ObjectId], ref: 'User' },
+    followers: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'User',
+    },
     // requests: [mongoose.Schema.Types.ObjectId],
     role: {
       type: String,
@@ -88,6 +95,7 @@ export interface User {
   image?: string;
   location?: { type: string; coordinates: [number] };
   place: string;
+  isBanned: boolean;
   phone?: string;
   followers?: [string | mongoose.Schema.Types.ObjectId];
   requests?: [string | mongoose.Schema.Types.ObjectId];

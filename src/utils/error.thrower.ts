@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 
 export function thrower(err: any) {
-  console.error(err?.message);
+  console.error(err);
   if (err instanceof NotFoundException)
     throw new NotFoundException(err.message);
   if (err instanceof ForbiddenException)
