@@ -27,9 +27,11 @@ export class NotificationService {
   }
   async getNotifications(userId: string | ObjId) {
     try {
-      const notifications = await this.notificationModel.find({
-        receiver: userId,
-      });
+      const notifications = await this.notificationModel
+        .find({
+          receiver: userId,
+        })
+        .sort('-createdAt');
       return returner({ results: notifications.length, notifications });
     } catch (err) {
       thrower(err);
