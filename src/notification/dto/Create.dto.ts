@@ -2,7 +2,10 @@ import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class Create {
   @IsOptional()
-  user: string;
+  author: string;
+
+  @IsNotEmpty()
+  receiver: string;
 
   @IsNotEmpty()
   content: string;

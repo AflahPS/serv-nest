@@ -46,7 +46,7 @@ export class UserController {
   }
 
   @Get('single/:id')
-  getSingleUser(@Param() params: { id: string }) {
+  getSingleUser(@Param() params: MongoId) {
     return this.userService.findUserById(params.id);
   }
 

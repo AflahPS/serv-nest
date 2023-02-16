@@ -27,8 +27,10 @@ export class NotificationService {
   }
   async getNotifications(userId: string | ObjId) {
     try {
-      const notifications = await this.notificationModel.find({ user: userId });
-      return returner({ notifications });
+      const notifications = await this.notificationModel.find({
+        receiver: userId,
+      });
+      return returner({ results: notifications.length, notifications });
     } catch (err) {
       thrower(err);
     }
@@ -39,7 +41,7 @@ export class NotificationService {
         notificationId,
       );
       if (!notification) throw new NotFoundException('Document not found !');
-      if (notification.user.toString() !== userId)
+      if (notification.receiver.toString() !== userId)
         throw new ForbiddenException('Unauthorized to perform this action !');
       const res = await notification.remove();
       if (res) return returner();

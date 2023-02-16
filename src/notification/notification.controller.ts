@@ -21,7 +21,7 @@ export class NotificationController {
   @UseGuards(JwtGuard)
   @Post()
   createNotification(@Body() dto: Create, @GetUser() user: User) {
-    dto.user = user._id.toString();
+    dto.author = user._id.toString();
     return this.notificationService.createNotification(dto);
   }
 

@@ -2,7 +2,13 @@ import * as mongoose from 'mongoose';
 
 export const notificationSchema = new mongoose.Schema(
   {
-    user: {
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      index: true,
+    },
+    receiver: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
@@ -28,7 +34,8 @@ export const notificationSchema = new mongoose.Schema(
 
 export interface Notification {
   _id?: string | mongoose.Schema.Types.ObjectId;
-  user: string | mongoose.Schema.Types.ObjectId;
+  author: string | mongoose.Schema.Types.ObjectId;
+  receiver: string | mongoose.Schema.Types.ObjectId;
   content: string;
   type: 'error' | 'warning' | 'info' | 'success';
 }
