@@ -71,13 +71,10 @@ export class VendorService {
     try {
       const vendors = await this.vendorModel
         .find({ service: serviceId })
-        .populate('user')
+        .select('_id')
         .exec();
-      console.log(
-        '🚀 ~ file: vendor.service.ts:74 ~ VendorService ~ findVendorByService ~ vendors',
-        vendors,
-      );
-      return { status: 'success', results: vendors.length, vendors };
+      const vendorIds = vendors.map((v) => v._id);
+      return vendorIds;
     } catch (err) {
       thrower(err);
     }
@@ -131,6 +128,24 @@ export class VendorService {
         populate: 'emp projects',
       });
       return { status: 'success', vendor: vendorAfterRemoval };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async addProject(projId: ObjId, vendorId: ObjId) {
+    try {
+      const added = await this.vendorModel.findByIdAndUpdate(
+        vendorId,
+        {
+          $addToSet: { projects: projId },
+        },
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
+      return !!added;
     } catch (err) {
       thrower(err);
     }

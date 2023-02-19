@@ -14,6 +14,10 @@ export const appointmentSchema = new mongoose.Schema(
       ref: 'User',
       index: true,
     },
+    description: {
+      type: String,
+      required: true,
+    },
     date: {
       type: Date,
       required: true,
@@ -42,6 +46,7 @@ export interface Appointment {
   vendor: string | mongoose.Schema.Types.ObjectId;
   date: Date;
   status: string;
+  description: string;
   createdAt: Date;
   updatedAt: Date;
 }

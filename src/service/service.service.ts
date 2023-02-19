@@ -2,15 +2,17 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Service } from './service.model';
-import { returner, thrower } from 'src/utils';
+import { ObjId, returner, thrower } from 'src/utils';
 import { Create } from './dto/Create.dto';
+import { UserService } from 'src/user/user.service';
 import { VendorService } from 'src/vendor/vendor.service';
 
 @Injectable()
 export class ServiceService {
   constructor(
     @InjectModel('Service') private readonly serviceModel: Model<Service>,
-    private vendorService: VendorService,
+    private readonly userService: UserService,
+    private readonly vendorService: VendorService,
   ) {}
 
   async addService(dto: Create): Promise<Service> {
@@ -71,6 +73,11 @@ export class ServiceService {
   }
 
   async getVendorsByServiceId(serviceId: string) {
-    return this.vendorService.findVendorByService(serviceId);
+    try {
+      const vendorIds = await this.vendorService.findVendorByService(serviceId);
+      return this.userService.findVendorByService(vendorIds as ObjId[]);
+    } catch (err) {
+      thrower(err);
+    }
   }
 }

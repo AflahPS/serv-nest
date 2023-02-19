@@ -13,9 +13,10 @@ import { JwtGuard } from 'src/auth/guard';
 import { Create } from './dto/Create.dto';
 import { GetUser } from 'src/auth/decorator';
 import { User } from 'src/user/user.model';
-import { ChageStatus } from './dto/ChangeStatus.dto';
+import { ChangeStatus } from './dto/ChangeStatus.dto';
 import { MongoId } from 'src/utils';
 import { ChangeDate } from './dto/ChangeDate.dto';
+import { Edit } from './dto/Edit.dto';
 
 @Controller('appointment')
 export class AppointmentController {
@@ -41,10 +42,20 @@ export class AppointmentController {
   }
 
   @UseGuards(JwtGuard)
+  @Patch(':id')
+  editAppointment(
+    @Param() params: MongoId,
+    @Body() dto: Edit,
+    @GetUser() user: User,
+  ) {
+    return this.appoService.editStatus(params.id, dto, user._id);
+  }
+
+  @UseGuards(JwtGuard)
   @Patch('/status/:id')
   changeStatus(
     @Param() params: MongoId,
-    @Body() dto: ChageStatus,
+    @Body() dto: ChangeStatus,
     @GetUser() user: User,
   ) {
     return this.appoService.changeStatus(params.id, dto.status, user._id);

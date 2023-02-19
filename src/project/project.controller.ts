@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   Get,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -15,6 +16,7 @@ import { GetUser } from 'src/auth/decorator';
 import { User } from 'src/user/user.model';
 import { MongoId } from 'src/utils';
 import { checkIfAdmin } from 'src/utils/util.functions';
+import { ObjectId } from 'mongoose';
 
 @Controller('project')
 export class ProjectController {
@@ -41,6 +43,24 @@ export class ProjectController {
   getProjectsByVendor(@GetUser() user: User) {
     this.isVendor(user.role);
     return this.projectService.getProjectsByVendor(user.vendor?._id.toString());
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('user')
+  getProjectsByUser(@GetUser() user: User) {
+    return this.projectService.getProjectsByUser(user._id.toString());
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch('report/:id')
+  reportProject(@GetUser() user: User, @Param() params: MongoId) {
+    return this.projectService.reportProject(params.id, user._id as ObjectId);
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch('unreport/:id')
+  unreportProject(@GetUser() user: User, @Param() params: MongoId) {
+    return this.projectService.unreportProject(params.id, user._id as ObjectId);
   }
 
   @UseGuards(JwtGuard)

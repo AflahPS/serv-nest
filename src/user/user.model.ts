@@ -97,8 +97,7 @@ export interface User {
   place: string;
   isBanned: boolean;
   phone?: string;
-  followers?: [string | mongoose.Schema.Types.ObjectId];
-  requests?: [string | mongoose.Schema.Types.ObjectId];
+  followers?: [string | mongoose.Schema.Types.ObjectId | User];
   createdAt?: Date;
   updatedAt?: Date;
   _id?: string | mongoose.Schema.Types.ObjectId;

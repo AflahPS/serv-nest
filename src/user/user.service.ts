@@ -124,9 +124,50 @@ export class UserService {
   }
 
   async findAllUsers(): Promise<User[]> {
-    const users = await this.userModel.find({}, { __v: 0, password: 0 }).exec();
-    return users;
+    try {
+      const users = await this.userModel
+        .find({}, { __v: 0, password: 0 })
+        .exec();
+      return users;
+    } catch (err) {
+      thrower(err);
+    }
   }
+
+  async getVendorFollowers(user: User) {
+    try {
+      const userWithFollowers = await this.userModel
+        .findById(user._id)
+        .populate({
+          path: 'followers',
+          populate: {
+            path: 'vendor',
+            strictPopulate: false,
+          },
+        });
+      const vendorFollowers = userWithFollowers.followers.filter(
+        (u) => (u as User)?.role === 'vendor',
+      );
+      return {
+        status: 'success',
+        results: vendorFollowers.length,
+        users: vendorFollowers,
+      };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  findVendorByService = async (vendorIds: ObjId[]) => {
+    try {
+      const users = await this.userModel
+        .find({ vendor: { $in: vendorIds } })
+        .populate('vendor');
+      return returner({ results: users.length, users });
+    } catch (err) {
+      thrower(err);
+    }
+  };
 
   async updateUserData(dto: any, user: User) {
     try {

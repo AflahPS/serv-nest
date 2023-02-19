@@ -1,26 +1,37 @@
 import {
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Project } from './project.model';
 import { Create } from './dto/Create.dto';
-import { returner, thrower } from 'src/utils';
+import { ObjId, returner, thrower } from 'src/utils';
 import { checkIfAdmin } from 'src/utils/util.functions';
 import { User } from 'src/user/user.model';
+import { VendorService } from 'src/vendor/vendor.service';
 
 @Injectable()
 export class ProjectService {
   constructor(
     @InjectModel('Project') private readonly projectModel: Model<Project>,
+    private readonly vendorService: VendorService,
   ) {}
 
   async createProject(dto: Create) {
     try {
       const prepData = new this.projectModel(dto);
       const project = await prepData.save();
+      const isAdded = await this.vendorService.addProject(
+        project._id as ObjId,
+        project.vendor as ObjId,
+      );
+      if (!isAdded)
+        throw new InternalServerErrorException(
+          'Something went wrong while adding project to vendor document',
+        );
       return returner({ project });
     } catch (err) {
       thrower(err);
@@ -53,6 +64,55 @@ export class ProjectService {
         })
         .populate('service');
       return returner({ results: projects.length, projects });
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getProjectsByUser(userId: string) {
+    try {
+      const projects = await this.projectModel
+        .find({ client: userId })
+        .populate({
+          path: 'vendor',
+          populate: {
+            path: 'user',
+            model: 'User',
+            select: 'name image',
+          },
+        })
+        .populate({ path: 'service', select: 'title' });
+      return returner({ results: projects.length, projects });
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async reportProject(projId: string, userId: ObjId) {
+    try {
+      const project = await this.projectModel.findById(projId);
+      if (project.client.toString() !== userId.toString())
+        throw new ForbiddenException(
+          'You are not authorized to perform this operation !',
+        );
+      project.status = 'failed';
+      await project.save();
+      return returner({ project });
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async unreportProject(projId: string, userId: ObjId) {
+    try {
+      const project = await this.projectModel.findById(projId);
+      if (project.client.toString() !== userId.toString())
+        throw new ForbiddenException(
+          'You are not authorized to perform this operation !',
+        );
+      project.status = 'running';
+      await project.save();
+      return returner({ project });
     } catch (err) {
       thrower(err);
     }

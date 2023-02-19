@@ -61,6 +61,12 @@ export class UserController {
     return user;
   }
 
+  @UseGuards(JwtGuard)
+  @Get('followers/vendor')
+  getVendorFollowers(@GetUser() user: User) {
+    return this.userService.getVendorFollowers(user);
+  }
+
   @Get('followers/:id')
   getFollowers(@Param() params: MongoId) {
     return this.userService.getFollowers(params.id);

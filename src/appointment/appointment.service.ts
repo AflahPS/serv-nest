@@ -10,6 +10,7 @@ import { Appointment } from './appointment.model';
 import { Create } from './dto/Create.dto';
 import { ObjId, thrower } from 'src/utils';
 import { UserService } from 'src/user/user.service';
+import { Edit } from './dto/Edit.dto';
 
 @Injectable()
 export class AppointmentService {
@@ -79,6 +80,25 @@ export class AppointmentService {
       }
       appointment.status = status;
       const updated = await appointment.save();
+      return { status: 'success', appointment: updated };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async editStatus(appoId: string | ObjId, dto: Edit, userId: string | ObjId) {
+    try {
+      const appointment = await this.appoModel.findById(appoId);
+      if (!appointment) throw new NotFoundException('Document not found !');
+      if (appointment.user.toString() !== userId.toString()) {
+        throw new ForbiddenException(
+          'You are not allowed to perform this action !',
+        );
+      }
+      appointment.date = dto.date as Date;
+      appointment.description = dto.description;
+      const updated = await appointment.save();
+      await updated.populate('vendor');
       return { status: 'success', appointment: updated };
     } catch (err) {
       thrower(err);

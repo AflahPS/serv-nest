@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 
-export class ChageStatus {
+export class ChangeStatus {
   @IsNotEmpty()
   status:
     | 'requested'
