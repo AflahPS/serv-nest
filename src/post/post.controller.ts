@@ -69,6 +69,20 @@ export class PostController {
     }
   }
 
+  @UseGuards(JwtGuard)
+  @Get('weekly')
+  getLastWeekPosts(@GetUser() user: User) {
+    checkIfAdmin(user);
+    return this.postService.getLastWeekPosts();
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('monthly')
+  getMonthlyPosts(@GetUser() user: User) {
+    checkIfAdmin(user);
+    return this.postService.getMonthlyPosts();
+  }
+
   @Get('/:id')
   async getPostById(@Param() params: MongoId) {
     try {

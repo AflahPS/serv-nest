@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Project } from './project.model';
 import { Create } from './dto/Create.dto';
-import { ObjId, returner, thrower } from 'src/utils';
+import { ObjId, lastWeekMade, monthlyMade, returner, thrower } from 'src/utils';
 import { checkIfAdmin } from 'src/utils/util.functions';
 import { User } from 'src/user/user.model';
 import { VendorService } from 'src/vendor/vendor.service';
@@ -129,6 +129,22 @@ export class ProjectService {
         throw new ForbiddenException('Unauthorized to perform this action !');
       const res = await project.remove();
       if (res) return returner();
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getLastWeekProjects() {
+    try {
+      return await lastWeekMade(this.projectModel);
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getMonthlyProjects() {
+    try {
+      return await monthlyMade(this.projectModel);
     } catch (err) {
       thrower(err);
     }

@@ -7,7 +7,7 @@ import { Create, Edit } from './dto';
 import { Post } from './post.model';
 import mongoose, { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ObjId, returner, thrower } from 'src/utils';
+import { ObjId, lastWeekMade, monthlyMade, returner, thrower } from 'src/utils';
 import { Like } from './like.model';
 import { User } from 'src/user/user.model';
 import { Vendor } from 'src/vendor/vendor.model';
@@ -223,6 +223,23 @@ export class PostService {
       thrower(err);
     }
   }
+
+  async getLastWeekPosts() {
+    try {
+      return await lastWeekMade(this.postModel);
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getMonthlyPosts() {
+    try {
+      return await monthlyMade(this.postModel);
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
   // async sharePost(dto) {
   //   return dto;
   // }

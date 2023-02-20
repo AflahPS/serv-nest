@@ -52,6 +52,20 @@ export class ProjectController {
   }
 
   @UseGuards(JwtGuard)
+  @Get('weekly')
+  getLastWeekProjects(@GetUser() user: User) {
+    checkIfAdmin(user);
+    return this.projectService.getLastWeekProjects();
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('monthly')
+  getMonthlyProjects(@GetUser() user: User) {
+    checkIfAdmin(user);
+    return this.projectService.getMonthlyProjects();
+  }
+
+  @UseGuards(JwtGuard)
   @Patch('report/:id')
   reportProject(@GetUser() user: User, @Param() params: MongoId) {
     return this.projectService.reportProject(params.id, user._id as ObjectId);

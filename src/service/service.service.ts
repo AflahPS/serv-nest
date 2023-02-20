@@ -47,6 +47,16 @@ export class ServiceService {
     return service;
   }
 
+  async getServicesTitle() {
+    try {
+      const services = await this.serviceModel.find().select('title').exec();
+      if (!services) throw new NotFoundException('Could not find services');
+      return returner({ services });
+    } catch (err) {
+      throw new NotFoundException(err.message || 'Something went wrong');
+    }
+  }
+
   async updateServiceData(dto: any, id: string) {
     try {
       const service = await this.findServiceById(id);

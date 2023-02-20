@@ -17,6 +17,7 @@ import { ChangeStatus } from './dto/ChangeStatus.dto';
 import { MongoId } from 'src/utils';
 import { ChangeDate } from './dto/ChangeDate.dto';
 import { Edit } from './dto/Edit.dto';
+import { checkIfAdmin } from 'src/utils/util.functions';
 
 @Controller('appointment')
 export class AppointmentController {
@@ -39,6 +40,20 @@ export class AppointmentController {
   @Get('user')
   getAppointmentsForUser(@GetUser() user: User) {
     return this.appoService.getAppointmentsForUser(user._id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('weekly')
+  getLastWeekAppointments(@GetUser() user: User) {
+    checkIfAdmin(user);
+    return this.appoService.getLastWeekAppointments();
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('monthly')
+  getMonthlyAppointments(@GetUser() user: User) {
+    checkIfAdmin(user);
+    return this.appoService.getMonthlyAppointments();
   }
 
   @UseGuards(JwtGuard)

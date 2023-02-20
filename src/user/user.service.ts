@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import * as argon from 'argon2';
 import { Newbie, User } from './user.model';
 import { SignupDto, SignupVendor } from 'src/auth/dto';
-import { ObjId, returner, thrower } from 'src/utils';
+import { ObjId, lastWeekMade, monthlyMade, returner, thrower } from 'src/utils';
 
 @Injectable()
 export class UserService {
@@ -408,6 +408,22 @@ export class UserService {
       const res = await this.userModel.findByIdAndDelete(userId);
       if (res) return returner();
       return { status: 'failed' };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getLastWeekUsers() {
+    try {
+      return await lastWeekMade(this.userModel);
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getMonthlyUsers() {
+    try {
+      return await monthlyMade(this.userModel);
     } catch (err) {
       thrower(err);
     }

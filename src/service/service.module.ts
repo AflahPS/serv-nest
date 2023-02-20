@@ -14,5 +14,6 @@ import { VendorModule } from 'src/vendor/vendor.module';
   ],
   providers: [ServiceService],
   controllers: [ServiceController],
+  exports: [ServiceService],
 })
 export class ServiceModule {}

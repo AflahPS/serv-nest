@@ -12,5 +12,6 @@ import { VendorModule } from 'src/vendor/vendor.module';
   ],
   controllers: [ProjectController],
   providers: [ProjectService],
+  exports: [ProjectService],
 })
 export class ProjectModule {}

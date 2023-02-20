@@ -48,6 +48,11 @@ export class ServiceController {
     return this.serviceService.findAllServices();
   }
 
+  @Get('titles')
+  getServiceTitle() {
+    return this.serviceService.getServicesTitle();
+  }
+
   @Get('vendor/:id')
   getVendorsByServiceId(@Param() params: MongoId) {
     return this.serviceService.getVendorsByServiceId(params.id);

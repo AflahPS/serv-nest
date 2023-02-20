@@ -134,4 +134,18 @@ export class UserController {
       throw new ForbiddenException('Unauthorized user !');
     return this.userService.deleteUser(params.id);
   }
+
+  @UseGuards(JwtGuard)
+  @Get('weekly')
+  getLastWeekUsers(@GetUser() user: User) {
+    checkIfAdmin(user);
+    return this.userService.getLastWeekUsers();
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('monthly')
+  getMonthlyUsers(@GetUser() user: User) {
+    checkIfAdmin(user);
+    return this.userService.getMonthlyUsers();
+  }
 }

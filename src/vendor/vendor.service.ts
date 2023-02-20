@@ -166,4 +166,26 @@ export class VendorService {
       thrower(err);
     }
   }
+
+  // async getPieChartData() {
+  //   try {
+  //     const dataSet = await this.vendorModel.aggregate([
+  //       {
+  //         $group: {
+  //           _id: '$service',
+  //           count: { $sum: 1 },
+  //         },
+  //       },
+  //       {
+  //         $addFields: { service: '$_id' },
+  //       },
+  //       {
+  //         $project: { _id: 0 },
+  //       },
+  //     ]);
+  //     return returner({ dataSet });
+  //   } catch (err) {
+  //     thrower(err);
+  //   }
+  // }
 }
