@@ -14,7 +14,7 @@ import { GetUser } from 'src/auth/decorator';
 import { User } from 'src/user/user.model';
 import { MongoId } from 'src/utils';
 
-@Controller('notification')
+@Controller('api/v1/notification')
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 

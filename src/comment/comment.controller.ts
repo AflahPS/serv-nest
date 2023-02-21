@@ -15,7 +15,7 @@ import { User } from 'src/user/user.model';
 import { Create } from './dto';
 import { MongoId } from 'src/utils';
 
-@Controller('comment')
+@Controller('api/v1/comment')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 

@@ -18,7 +18,7 @@ import { Vendor } from 'src/vendor/vendor.model';
 import { User } from 'src/user/user.model';
 import { checkIfAdmin } from 'src/utils/util.functions';
 
-@Controller('post')
+@Controller('api/v1/post')
 export class PostController {
   constructor(private postService: PostService) {}
 

@@ -18,7 +18,7 @@ import { MongoId } from 'src/utils';
 import { checkIfAdmin } from 'src/utils/util.functions';
 import { ObjectId } from 'mongoose';
 
-@Controller('project')
+@Controller('api/v1/project')
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 

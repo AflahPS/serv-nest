@@ -17,7 +17,7 @@ import { GetUser } from 'src/auth/decorator';
 import { User } from 'src/user/user.model';
 import { checkIfAdmin } from 'src/utils/util.functions';
 
-@Controller('service')
+@Controller('api/v1/service')
 export class ServiceController {
   constructor(private serviceService: ServiceService) {}
 

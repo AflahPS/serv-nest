@@ -12,7 +12,7 @@ import { GetUser } from './decorator';
 import { Newbie } from 'src/user/user.model';
 import { JwtGuard } from './guard';
 
-@Controller('auth')
+@Controller('api/v1/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 

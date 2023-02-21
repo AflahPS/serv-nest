@@ -18,7 +18,7 @@ import { Edit, Image } from './dto';
 import { MongoId, ObjId } from 'src/utils';
 import { checkIfAdmin } from 'src/utils/util.functions';
 
-@Controller('user')
+@Controller('api/v1/user')
 export class UserController {
   constructor(private userService: UserService) {}
 

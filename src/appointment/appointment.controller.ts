@@ -19,7 +19,7 @@ import { ChangeDate } from './dto/ChangeDate.dto';
 import { Edit } from './dto/Edit.dto';
 import { checkIfAdmin } from 'src/utils/util.functions';
 
-@Controller('appointment')
+@Controller('api/v1/appointment')
 export class AppointmentController {
   constructor(private appoService: AppointmentService) {}
 

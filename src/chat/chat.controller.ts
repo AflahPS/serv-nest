@@ -14,7 +14,7 @@ import { MongoId, ObjId } from 'src/utils';
 import { User } from 'src/user/user.model';
 import { CreateMessage } from './dto/CreateMessage.dto';
 
-@Controller('chat')
+@Controller('api/v1/chat')
 export class ChatController {
   constructor(private chatService: ChatService) {}
 
