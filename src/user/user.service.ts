@@ -1,10 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as argon from 'argon2';
 import { Newbie, User } from './user.model';
 import { SignupDto, SignupVendor } from 'src/auth/dto';
 import { ObjId, lastWeekMade, monthlyMade, returner, thrower } from 'src/utils';
+import { RoleChange } from './dto';
 
 @Injectable()
 export class UserService {
@@ -219,6 +224,22 @@ export class UserService {
       updatedUser = await updatedUser.populate('vendor.service');
       // delete updatedUser.password;
       return updatedUser;
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async roleChanger(dto: RoleChange) {
+    try {
+      const user = await this.userModel.findById(dto.id);
+      if (!user) throw new NotFoundException(`User with ${dto.id} not found !`);
+      if (user?.role !== dto.from)
+        throw new ConflictException(
+          "It seems like the user's data (user.role) is out-of-sync !",
+        );
+      user.role = dto.to;
+      const updatedUser = await user.save();
+      if (updatedUser.role === dto.to) return returner({ user: updatedUser });
     } catch (err) {
       thrower(err);
     }

@@ -25,6 +25,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       if (user) {
         const isVerified = user.password === payload.password;
         if (!isVerified) throw new ForbiddenException('Unauthorized !');
+        const isBanned = user?.isBanned;
+        if (isBanned)
+          throw new ForbiddenException('You account has been banned !');
         return user;
       }
       return null;

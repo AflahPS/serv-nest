@@ -4,6 +4,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  NotAcceptableException,
   Param,
   Patch,
   Post,
@@ -14,8 +15,8 @@ import { SignupDto } from 'src/auth/dto';
 import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/auth/decorator';
 import { User } from './user.model';
-import { Edit, Image } from './dto';
-import { MongoId, ObjId } from 'src/utils';
+import { Edit, Image, RoleChange } from './dto';
+import { MongoId, ObjId, returner } from 'src/utils';
 import { checkIfAdmin } from 'src/utils/util.functions';
 
 @Controller('api/v1/user')
@@ -58,7 +59,27 @@ export class UserController {
   @UseGuards(JwtGuard)
   @Get('me')
   getMe(@GetUser() user: User) {
-    return user;
+    return returner({ user });
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('/admin/me')
+  getMeAdmin(@GetUser() user: User) {
+    if (!checkIfAdmin(user))
+      throw new ForbiddenException(`You are unauthorized to access this page`);
+    return returner({ user });
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch('/role')
+  roleChanger(@GetUser() user: User, @Body() dto: RoleChange) {
+    if (!checkIfAdmin(user))
+      throw new ForbiddenException(`You are unauthorized to access this page`);
+    if (dto.from === dto.to)
+      throw new NotAcceptableException(
+        'Promoted/Demoted roles should not be the same !',
+      );
+    return this.userService.roleChanger(dto);
   }
 
   @UseGuards(JwtGuard)
