@@ -14,9 +14,14 @@ import { ProjectModule } from './project/project.module';
 import { NotificationModule } from './notification/notification.module';
 import { ChatModule } from './chat/chat.module';
 import { AdminModule } from './admin/admin.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      ttl: 30,
+      limit: 15,
+    }),
     AuthModule,
     UserModule,
     PostModule,
