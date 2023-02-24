@@ -29,6 +29,7 @@ export const userSchema = new mongoose.Schema(
       coordinates: {
         type: [Number],
         required: true,
+        default: [0, 0],
       },
     },
     isBanned: {
@@ -45,7 +46,6 @@ export const userSchema = new mongoose.Schema(
       type: [mongoose.Schema.Types.ObjectId],
       ref: 'User',
     },
-    // requests: [mongoose.Schema.Types.ObjectId],
     role: {
       type: String,
       enum: ['user', 'admin', 'vendor', 'super-admin'],
@@ -64,19 +64,9 @@ export const userSchema = new mongoose.Schema(
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   },
-);
-
-// userSchema.post(/^find/, function (docs, next) {
-//   if (Array.isArray(docs)) {
-//     console.log(docs);
-//   } else {
-//     if (docs.role === 'vendor') {
-//       docs.populate('vendor');
-//     }
-//   }
-
-//   next();
-// });
+).index({
+  location: '2dsphere',
+});
 
 export interface Newbie {
   _id?: string | mongoose.Schema.Types.ObjectId;

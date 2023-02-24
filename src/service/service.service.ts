@@ -6,6 +6,7 @@ import { ObjId, returner, thrower } from 'src/utils';
 import { Create } from './dto/Create.dto';
 import { UserService } from 'src/user/user.service';
 import { VendorService } from 'src/vendor/vendor.service';
+import { VendorByLocation } from './dto/VendorByLocation.dto';
 
 @Injectable()
 export class ServiceService {
@@ -35,6 +36,8 @@ export class ServiceService {
       thrower(err);
     }
   }
+
+  // {location: {$geoWithin: {$centerSphere: [ [ 75.7804,11.2588], 0.1 ] }}}
 
   async findServiceById(id: string): Promise<Service> {
     let service: Service;
@@ -86,6 +89,15 @@ export class ServiceService {
     try {
       const vendorIds = await this.vendorService.findVendorByService(serviceId);
       return this.userService.findVendorByService(vendorIds as ObjId[]);
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getVendorsByServiceIdWithLocation(dto: VendorByLocation) {
+    try {
+      // const vendorIds = await this.vendorService.findVendorByService();
+      // return this.userService.findVendorByService(vendorIds as ObjId[]);
     } catch (err) {
       thrower(err);
     }
