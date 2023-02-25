@@ -1,10 +1,4 @@
-import {
-  IsNotEmpty,
-  IsString,
-  IsEmail,
-  Length,
-  IsOptional,
-} from 'class-validator';
+import { IsNotEmpty, IsString, IsEmail, Length } from 'class-validator';
 import { Match } from '../decorator';
 
 export class SignupDto {

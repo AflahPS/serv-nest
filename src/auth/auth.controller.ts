@@ -7,7 +7,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SigninDto, SignupDto, SignupVendor } from './dto';
+import { SigninDto, SigninProviderDto, SignupDto, SignupVendor } from './dto';
 import { GetUser } from './decorator';
 import { Newbie } from 'src/user/user.model';
 import { JwtGuard } from './guard';
@@ -26,6 +26,12 @@ export class AuthController {
   @Post('signin')
   signin(@Body() dto: SigninDto) {
     return this.authService.signin(dto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('signin/provider')
+  signinWithProvider(@Body() dto: SigninProviderDto) {
+    return this.authService.signinProvider(dto);
   }
 
   @HttpCode(HttpStatus.OK)

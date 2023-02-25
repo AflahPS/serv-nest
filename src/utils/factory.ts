@@ -35,8 +35,8 @@ export const monthlyMade = async (model: Model<any>) => {
   try {
     const thisYear = [];
     for (let i = 0; i < 12; ++i) {
-      const thisYear1 = moment().startOf('year');
-      const thisYear2 = moment().startOf('year');
+      const thisYear1 = moment.default().startOf('year');
+      const thisYear2 = moment.default().startOf('year');
       const newObj = {
         start: thisYear1.add(i, 'months').startOf('month').toDate(),
         end: thisYear2.add(i, 'months').endOf('month').toDate(),

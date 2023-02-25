@@ -16,7 +16,6 @@ export const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
     },
     image: String,
     location: {
@@ -57,6 +56,11 @@ export const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Vendor',
       index: true,
+    },
+    authType: {
+      type: String,
+      enum: ['google', 'facebook', 'email-password'],
+      default: 'email-password',
     },
   },
   {

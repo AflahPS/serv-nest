@@ -37,3 +37,6 @@ lerna-debug.log*
 # env
 .env
 .vercel
+firebase.config.json
+
+/src/**/*.js

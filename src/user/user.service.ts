@@ -7,7 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as argon from 'argon2';
 import { Newbie, User } from './user.model';
-import { SignupDto, SignupVendor } from 'src/auth/dto';
+import { SigninProviderDto, SignupDto, SignupVendor } from 'src/auth/dto';
 import { ObjId, lastWeekMade, monthlyMade, returner, thrower } from 'src/utils';
 import { RoleChange } from './dto';
 
@@ -33,6 +33,23 @@ export class UserService {
       const newUser = new this.userModel(dto);
       const addedUser = await newUser.save();
 
+      return addedUser;
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async providerSignup(dto: SigninProviderDto): Promise<Newbie> {
+    try {
+      // Saving the user to the database
+      const newUser = new this.userModel({
+        name: dto.name,
+        email: dto.email,
+        image: dto?.image || '',
+        phone: dto?.phone || '',
+        authType: dto.provider,
+      });
+      const addedUser = await newUser.save();
       return addedUser;
     } catch (err) {
       thrower(err);
@@ -87,6 +104,38 @@ export class UserService {
         },
       ]);
       if (!user) throw new NotFoundException('Email or Password wrong !');
+      if (!user?.role || user.role === 'user') return user;
+      if (!['admin', 'super-admin'].some((el) => el === user.role)) return user;
+      if (
+        'vendor' in user &&
+        typeof user.vendor === 'object' &&
+        'service' in user.vendor
+      ) {
+        user = await user.populate('vendor.service');
+      }
+
+      delete user.password;
+      return user;
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async findUserByEmailForProviderAuth(obj: { email: string }) {
+    try {
+      let user;
+      try {
+        user = await this.userModel.findOne(obj, { __v: 0 }).populate([
+          {
+            path: 'vendor',
+            strictPopulate: false,
+          },
+        ]);
+      } catch (error) {
+        console.log({ error });
+        return null;
+      }
+      if (!user) return null;
       if (!user?.role || user.role === 'user') return user;
       if (!['admin', 'super-admin'].some((el) => el === user.role)) return user;
       if (

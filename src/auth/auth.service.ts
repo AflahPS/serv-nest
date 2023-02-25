@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -7,11 +9,11 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import mongoose from 'mongoose';
 
-import { SigninDto, SignupDto, SignupVendor } from './dto';
+import { SigninDto, SigninProviderDto, SignupDto, SignupVendor } from './dto';
 import { UserService } from 'src/user/user.service';
 import { VendorService } from 'src/vendor/vendor.service';
 import { Newbie, User } from 'src/user/user.model';
-import { thrower } from 'src/utils';
+import { firebaseAdmin, returner, thrower } from 'src/utils';
 
 @Injectable()
 export class AuthService {
@@ -24,9 +26,9 @@ export class AuthService {
   async signToken(
     id: string | mongoose.Schema.Types.ObjectId,
     email: string,
-    password: string,
+    // password: string,
   ) {
-    const payload = { sub: id, email, password };
+    const payload = { sub: id, email };
     try {
       const token = await this.jwt.signAsync(payload, {
         expiresIn: '120m',
@@ -45,7 +47,7 @@ export class AuthService {
       const token = await this.signToken(
         newUser._id,
         newUser.email,
-        newUser.password,
+        // newUser.password,
       );
       delete newUser.password;
       return { status: 'success', token, user: newUser };
@@ -67,9 +69,47 @@ export class AuthService {
         user.password,
       );
       if (!isVerified) throw new NotFoundException('Email/password wrong !');
-      const token = await this.signToken(user._id, user.email, user.password);
+      const token = await this.signToken(
+        user._id,
+        user.email /* user.password */,
+      );
       delete user.password;
       return { status: 'success', token, user };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async signinProvider(dto: SigninProviderDto) {
+    try {
+      // Verify IdToken sent from client
+      const firebaseUser = await firebaseAdmin
+        .auth()
+        .verifyIdToken(dto.idToken);
+
+      if (firebaseUser) {
+        const user = await this.userService.findUserByEmailForProviderAuth({
+          email: dto.email,
+        });
+        // If Email already used for other authentication methods..
+        if (user && user?.authType && user.authType !== dto.provider)
+          throw new ConflictException('Email already in use !');
+
+        // Logging in if user already registerd
+        if (user) {
+          const token = await this.signToken(user._id, user.email);
+          delete user?.password;
+          return returner({ user, token });
+        }
+
+        // Registering new user if not yet registered
+        const newUser = await this.userService.providerSignup(dto);
+        const token = await this.signToken(newUser._id, newUser.email);
+        return { status: 'success', token, user: newUser };
+      }
+      throw new BadRequestException(
+        `Couldn't verify your ${dto.provider} details !`,
+      );
     } catch (err) {
       thrower(err);
     }
@@ -85,7 +125,11 @@ export class AuthService {
         user.password,
       );
       if (!isVerified) throw new NotFoundException('Email/password wrong !');
-      const token = await this.signToken(user._id, user.email, user.password);
+      const token = await this.signToken(
+        user._id,
+        user.email,
+        //  user.password
+      );
       delete user.password;
       return { status: 'success', token, user };
     } catch (err) {
@@ -105,7 +149,7 @@ export class AuthService {
       const token = await this.signToken(
         updatedUser._id,
         updatedUser.email,
-        updatedUser.password,
+        // updatedUser.password,
       );
       delete updatedUser.password;
       return { status: 'success', token, user: updatedUser };

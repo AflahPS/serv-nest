@@ -16,17 +16,18 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   async validate(payload: {
     sub: string;
     email: string;
-    password: string;
+    // password: string;
     iat: number;
     exp: string;
   }) {
     try {
+      console.log({ payload });
+
       const { user } = await this.userService.findUserById(payload.sub);
       if (user) {
-        const isVerified = user.password === payload.password;
-        if (!isVerified) throw new ForbiddenException('Unauthorized !');
-        const isBanned = user?.isBanned;
-        if (isBanned)
+        if (user.email !== payload.email)
+          throw new ForbiddenException('Unauthorized !');
+        if (user.isBanned)
           throw new ForbiddenException('You account has been banned !');
         return user;
       }
