@@ -223,6 +223,55 @@ export class UserService {
     }
   };
 
+  findVendorByServiceWithDistance = async (
+    vendorIds: ObjId[],
+    lnglat: string,
+  ) => {
+    try {
+      const center: { type: 'Point'; coordinates: [number, number] } = {
+        type: 'Point',
+        coordinates: [+lnglat.split(',')[0], +lnglat.split(',')[1]],
+      };
+      const users = await this.userModel.aggregate([
+        {
+          $geoNear: {
+            near: center,
+            distanceField: 'distance',
+            query: {
+              vendor: {
+                $in: vendorIds,
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: 'vendors',
+            localField: 'vendor',
+            foreignField: '_id',
+            as: 'vendorArr',
+          },
+        },
+        {
+          $addFields: {
+            vendor: {
+              $arrayElemAt: ['$vendorArr', 0],
+            },
+          },
+        },
+        {
+          $project: {
+            vendorArr: 0,
+          },
+        },
+      ]);
+      // .populate('vendor');
+      return returner({ results: users.length, users });
+    } catch (err) {
+      thrower(err);
+    }
+  };
+
   async updateUserData(dto: any, user: User) {
     try {
       const prepData = Object.assign(user, dto);

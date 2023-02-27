@@ -1,9 +1,10 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Create, Edit } from './dto';
+import { Create, Edit, PaginationParams } from './dto';
 import { Post } from './post.model';
 import mongoose, { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -42,16 +43,38 @@ export class PostService {
     }
   }
 
-  async getPostByUserId(id: string | ObjId) {
+  async paginationStaging(dto: PaginationParams) {
     try {
+      const { page, limit } = dto;
+      const limitNum = +limit;
+      const pageNum = +page;
+      const skip = (limitNum || 10) * ((pageNum || 1) - 1);
+      if (isNaN(skip))
+        throw new BadRequestException(`Page number or limit is invalid !`);
+      const totalPosts = await this.postModel.count();
+      if (skip > totalPosts || skip < 0)
+        throw new NotFoundException(
+          'Could not find post for this page number !',
+        );
+      return { limitNum, skip, totalPosts };
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  async getPostByUserId(dto: PaginationParams) {
+    try {
+      const { limitNum, skip } = await this.paginationStaging(dto);
       const posts = await this.postModel
-        .find({ owner: id })
+        .find({ owner: dto.id })
+        .skip(skip)
+        .limit(limitNum)
         .sort('-createdAt')
-        .limit(10)
         .populate({ path: 'owner', select: 'name image createdAt updatedAt' })
         .exec();
+      const totalPosts = await this.postModel.find({ owner: dto.id }).count();
       if (!posts.length) throw new NotFoundException('Post not found !!');
-      return { posts };
+      return returner({ posts, totalPosts });
     } catch (err) {
       thrower(err);
     }
@@ -59,31 +82,35 @@ export class PostService {
 
   // Need something EO-Alg here
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async getPostForUser(id: string | ObjId) {
+  async getPostForUser(id: string | ObjId, dto: PaginationParams) {
     try {
+      const { limitNum, skip, totalPosts } = await this.paginationStaging(dto);
       const posts = await this.postModel
         .find()
+        .skip(skip)
+        .limit(limitNum)
         .sort('-createdAt')
-        .limit(10)
         .populate({ path: 'owner', select: 'name image createdAt updatedAt' })
         .exec();
       if (!posts.length) throw new NotFoundException('Post not found !!');
-      return { posts };
+      return returner({ posts, totalPosts });
     } catch (err) {
       thrower(err);
     }
   }
 
-  async getPostForGuest() {
+  async getPostForGuest(dto: PaginationParams) {
     try {
+      const { limitNum, skip, totalPosts } = await this.paginationStaging(dto);
       const posts = await this.postModel
         .find()
+        .skip(skip)
+        .limit(limitNum)
         .sort('-createdAt')
-        .limit(10)
         .populate({ path: 'owner', select: 'name image createdAt updatedAt' })
         .exec();
       if (!posts.length) throw new NotFoundException('Post not found !!');
-      return { posts };
+      return returner({ posts, totalPosts });
     } catch (err) {
       thrower(err);
     }

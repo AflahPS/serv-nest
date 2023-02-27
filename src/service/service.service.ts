@@ -96,8 +96,13 @@ export class ServiceService {
 
   async getVendorsByServiceIdWithLocation(dto: VendorByLocation) {
     try {
-      // const vendorIds = await this.vendorService.findVendorByService();
-      // return this.userService.findVendorByService(vendorIds as ObjId[]);
+      const vendorIds = await this.vendorService.findVendorByService(
+        dto.serviceId,
+      );
+      return this.userService.findVendorByServiceWithDistance(
+        vendorIds as ObjId[],
+        dto.lnglat,
+      );
     } catch (err) {
       thrower(err);
     }

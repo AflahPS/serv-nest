@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PostService } from './post.service';
-import { Create, Edit } from './dto';
+import { Create, Edit, PaginationParams } from './dto';
 import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/auth/decorator';
 import { MongoId, ObjId, thrower } from 'src/utils';
@@ -50,20 +50,41 @@ export class PostController {
     }
   }
 
-  @Get()
-  async getPostForGuest() {
+  @Get('/:id')
+  async getPostById(@Param() params: MongoId) {
     try {
-      return await this.postService.getPostForGuest();
+      return await this.postService.getPostById(params.id);
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  @Get(`/page/:page/limit/:limit`)
+  async getPostForGuest(@Param() params: PaginationParams) {
+    try {
+      return await this.postService.getPostForGuest(params);
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  @Get('/owner/:id/page/:page/limit/:limit')
+  async getPostByUser(@Param() params: PaginationParams) {
+    try {
+      return await this.postService.getPostByUserId(params);
     } catch (err) {
       thrower(err);
     }
   }
 
   @UseGuards(JwtGuard)
-  @Get('user')
-  async getPostForUser(@GetUser() user: User | Vendor) {
+  @Get('user/page/:page/limit/:limit')
+  async getPostForUser(
+    @GetUser() user: User | Vendor,
+    @Param() params: PaginationParams,
+  ) {
     try {
-      return await this.postService.getPostForUser(user._id);
+      return await this.postService.getPostForUser(user._id, params);
     } catch (err) {
       thrower(err);
     }
@@ -81,24 +102,6 @@ export class PostController {
   getMonthlyPosts(@GetUser() user: User) {
     checkIfAdmin(user);
     return this.postService.getMonthlyPosts();
-  }
-
-  @Get('/:id')
-  async getPostById(@Param() params: MongoId) {
-    try {
-      return await this.postService.getPostById(params.id);
-    } catch (err) {
-      thrower(err);
-    }
-  }
-
-  @Get('/owner/:id')
-  async getPostByUser(@Param() params: MongoId) {
-    try {
-      return await this.postService.getPostByUserId(params.id);
-    } catch (err) {
-      thrower(err);
-    }
   }
 
   @Get('/like/:id')
