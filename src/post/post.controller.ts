@@ -91,6 +91,22 @@ export class PostController {
   }
 
   @UseGuards(JwtGuard)
+  @Get('saved/page/:page/limit/:limit')
+  async getSavedPosts(
+    @GetUser() user: User,
+    @Param() params: PaginationParams,
+  ) {
+    try {
+      return await this.postService.getSavedPosts(
+        user.savedPosts as string[],
+        params,
+      );
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
+  @UseGuards(JwtGuard)
   @Get('weekly')
   getLastWeekPosts(@GetUser() user: User) {
     checkIfAdmin(user);

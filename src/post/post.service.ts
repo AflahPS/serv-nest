@@ -116,6 +116,24 @@ export class PostService {
     }
   }
 
+  async getSavedPosts(postIds: string[], dto: PaginationParams) {
+    try {
+      const { limitNum, skip, totalPosts } = await this.paginationStaging(dto);
+      const posts = await this.postModel
+        .find({ _id: { $in: postIds } })
+        .skip(skip)
+        .limit(limitNum)
+        .sort('-createdAt')
+        .populate({ path: 'owner', select: 'name image createdAt updatedAt' })
+        .exec();
+
+      if (!posts.length) throw new NotFoundException('Post not found !!');
+      return returner({ posts, totalPosts });
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
   async getAllPosts() {
     try {
       const posts = await this.postModel

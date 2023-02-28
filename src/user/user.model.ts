@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { ObjId } from 'src/utils';
 import { Vendor } from 'src/vendor/vendor.model';
 
 export const userSchema = new mongoose.Schema(
@@ -89,6 +90,7 @@ export interface User {
   image?: string;
   location?: { type: string; coordinates: [number] };
   place: string;
+  savedPosts: string[] | ObjId[];
   isBanned: boolean;
   phone?: string;
   followers?: [string | mongoose.Schema.Types.ObjectId | User];
