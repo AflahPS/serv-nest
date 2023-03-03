@@ -85,7 +85,7 @@ export interface Newbie {
 export interface User {
   name: string;
   email: string;
-  password: string;
+  password?: string;
   role?: 'user' | 'admin' | 'vendor' | 'super-admin';
   image?: string;
   location?: { type: string; coordinates: [number] };
@@ -97,6 +97,5 @@ export interface User {
   createdAt?: Date;
   updatedAt?: Date;
   _id?: string | mongoose.Schema.Types.ObjectId;
-  // vendor?: string | mongoose.Schema.Types.ObjectId | Vendor;
   vendor?: Vendor;
 }

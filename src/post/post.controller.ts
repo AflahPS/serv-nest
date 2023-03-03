@@ -24,13 +24,8 @@ export class PostController {
 
   @UseGuards(JwtGuard)
   @Post()
-  async createPost(
-    @Body()
-    dto: Create,
-    @GetUser('_id') id: ObjId | string,
-  ) {
+  async createPost(@Body() dto: Create, @GetUser('_id') id: ObjId | string) {
     dto.owner = id;
-
     try {
       return await this.postService.createPost(dto);
     } catch (err) {
@@ -45,15 +40,6 @@ export class PostController {
       if (!checkIfAdmin(user))
         throw new ForbiddenException('Unauthorized access is not allowed');
       return await this.postService.getAllPosts();
-    } catch (err) {
-      thrower(err);
-    }
-  }
-
-  @Get('/:id')
-  async getPostById(@Param() params: MongoId) {
-    try {
-      return await this.postService.getPostById(params.id);
     } catch (err) {
       thrower(err);
     }
@@ -161,5 +147,14 @@ export class PostController {
   @Delete('/:id')
   async deletePost(@GetUser() user: User, @Param() params: MongoId) {
     return await this.postService.deletePost(user, params.id);
+  }
+
+  @Get('/:id')
+  async getPostById(@Param() params: MongoId) {
+    try {
+      return await this.postService.getPostById(params.id);
+    } catch (err) {
+      thrower(err);
+    }
   }
 }

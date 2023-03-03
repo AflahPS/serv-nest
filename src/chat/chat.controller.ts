@@ -31,12 +31,6 @@ export class ChatController {
   }
 
   @UseGuards(JwtGuard)
-  @Get('/:id')
-  async getChatById(@GetUser() user: User, @Param() params: MongoId) {
-    return this.chatService.getChatById(user._id as ObjId, params.id);
-  }
-
-  @UseGuards(JwtGuard)
   @Delete(':id')
   async deleteChat(@GetUser() user: User, @Param() params: MongoId) {
     return this.chatService.deleteChat(user._id as ObjId, params.id);
@@ -60,5 +54,11 @@ export class ChatController {
   @Get('/message/:id')
   async getMessages(@Param() params: MongoId, @GetUser() user: User) {
     return this.chatService.getMessages(params.id, user._id as ObjId);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('/:id')
+  async getChatById(@GetUser() user: User, @Param() params: MongoId) {
+    return this.chatService.getChatById(user._id as ObjId, params.id);
   }
 }

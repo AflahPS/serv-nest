@@ -13,7 +13,6 @@ import { AppointmentModule } from './appointment/appointment.module';
 import { ProjectModule } from './project/project.module';
 import { NotificationModule } from './notification/notification.module';
 import { ChatModule } from './chat/chat.module';
-import { AdminModule } from './admin/admin.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
@@ -38,7 +37,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
     ProjectModule,
     NotificationModule,
     ChatModule,
-    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

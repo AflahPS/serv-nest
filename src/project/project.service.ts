@@ -59,6 +59,7 @@ export class ProjectService {
           path: 'vendor',
           populate: {
             path: 'user',
+            select: '-password -__v -isBanned',
             model: 'User',
           },
         })

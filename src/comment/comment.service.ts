@@ -65,7 +65,6 @@ export class CommentService {
         user: userId,
         comment: commentId,
       });
-      console.log(res);
       if (res) return { status: 'success' };
     } catch (err) {
       thrower(err);

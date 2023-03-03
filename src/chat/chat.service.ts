@@ -131,7 +131,7 @@ export class ChatService {
       this.verifyChatOwnership(chat, user);
       const messages = await this.chatMessageModel
         .find({ chat })
-        .sort('-createdAt')
+        .sort('createdAt')
         .limit(50);
       if (!messages || messages.length === 0)
         throw new NotFoundException('No messages found');

@@ -1,8 +1,19 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UserService } from 'src/user/user.service';
 import { thrower } from 'src/utils';
+
+interface Payload {
+  sub: string;
+  email: string;
+  iat: number;
+  exp: string;
+}
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -13,16 +24,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(payload: {
-    sub: string;
-    email: string;
-    // password: string;
-    iat: number;
-    exp: string;
-  }) {
+  async validate(payload: Payload) {
     try {
-      console.log({ payload });
-
+      // Check if token expired
+      const now = new Date().getTime() / 1000;
+      if (now > +payload.exp)
+        throw new UnauthorizedException('Your token is expired, Login again !');
+      // Check if user exists or banned
       const { user } = await this.userService.findUserById(payload.sub);
       if (user) {
         if (user.email !== payload.email)

@@ -16,8 +16,6 @@ export class VendorService {
 
   async addVendor(dto: SignupVendor) {
     try {
-      console.log({ dto });
-
       // Saving the vendor to the database
       const newVendor = new this.vendorModel(dto);
       const addedVendor = await newVendor.save();
@@ -50,8 +48,6 @@ export class VendorService {
         workRadius: dto.workRadius,
         experience: dto.experience,
       };
-
-      console.log(prepData);
 
       const updatedVendor = await this.vendorModel.findByIdAndUpdate(
         user.vendor,

@@ -1,12 +1,13 @@
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as argon from 'argon2';
-import { Newbie, User } from './user.model';
+import { User } from './user.model';
 import { SigninProviderDto, SignupDto, SignupVendor } from 'src/auth/dto';
 import { ObjId, lastWeekMade, monthlyMade, returner, thrower } from 'src/utils';
 import { RoleChange } from './dto';
@@ -23,7 +24,7 @@ export class UserService {
     }
   }
 
-  async addUser(dto: SignupDto): Promise<Newbie> {
+  async addUser(dto: SignupDto) {
     try {
       // Hashing the user password
       const hashed = await argon.hash(dto.password);
@@ -32,14 +33,14 @@ export class UserService {
       // Saving the user to the database
       const newUser = new this.userModel(dto);
       const addedUser = await newUser.save();
-
+      delete addedUser['password'];
       return addedUser;
     } catch (err) {
       thrower(err);
     }
   }
 
-  async providerSignup(dto: SigninProviderDto): Promise<Newbie> {
+  async providerSignup(dto: SigninProviderDto) {
     try {
       // Saving the user to the database
       const newUser = new this.userModel({
@@ -59,8 +60,12 @@ export class UserService {
   async findUserById(id: string | ObjId) {
     try {
       let user = await this.userModel
-        .findById(id, { __v: 0 })
+        .findById(id, { __v: 0, password: 0 })
         .populate('vendor');
+      if (!user) throw new NotFoundException('Email or Password wrong !');
+      if (!user?.role || user.role === 'user') return returner({ user });
+      if (['admin', 'super-admin'].some((role) => role === user.role))
+        return returner({ user });
       if (
         'vendor' in user &&
         typeof user.vendor === 'object' &&
@@ -68,8 +73,7 @@ export class UserService {
       ) {
         user = await user.populate('vendor.service');
       }
-      if (!user) throw new NotFoundException('Could not find user');
-      delete user.password;
+
       return returner({ user });
     } catch (err) {
       thrower(err);
@@ -78,12 +82,15 @@ export class UserService {
 
   async findUserByRole(role: string) {
     try {
-      const users = await this.userModel.find({ role }).populate([
-        {
-          path: 'vendor',
-          strictPopulate: false,
-        },
-      ]);
+      const users = await this.userModel
+        .find({ role })
+        .select('-password')
+        .populate([
+          {
+            path: 'vendor',
+            strictPopulate: false,
+          },
+        ]);
 
       return returner({ results: users.length, users });
     } catch (err) {
@@ -93,10 +100,6 @@ export class UserService {
 
   async findUserByEmail(obj: { email: string }) {
     try {
-      // TODO: check if the `error message =
-      //  "Cannot read properties of null (reading 'role')"
-      // ` is gone after purging the db
-
       let user = await this.userModel.findOne(obj, { __v: 0 }).populate([
         {
           path: 'vendor',
@@ -105,7 +108,7 @@ export class UserService {
       ]);
       if (!user) throw new NotFoundException('Email or Password wrong !');
       if (!user?.role || user.role === 'user') return user;
-      if (!['admin', 'super-admin'].some((el) => el === user.role)) return user;
+      if (['admin', 'super-admin'].some((el) => el === user.role)) return user;
       if (
         'vendor' in user &&
         typeof user.vendor === 'object' &&
@@ -113,8 +116,6 @@ export class UserService {
       ) {
         user = await user.populate('vendor.service');
       }
-
-      delete user.password;
       return user;
     } catch (err) {
       thrower(err);
@@ -132,12 +133,12 @@ export class UserService {
           },
         ]);
       } catch (error) {
-        console.log({ error });
+        console.error(error);
         return null;
       }
       if (!user) return null;
       if (!user?.role || user.role === 'user') return user;
-      if (!['admin', 'super-admin'].some((el) => el === user.role)) return user;
+      if (['admin', 'super-admin'].some((el) => el === user.role)) return user;
       if (
         'vendor' in user &&
         typeof user.vendor === 'object' &&
@@ -194,6 +195,7 @@ export class UserService {
         .findById(user._id)
         .populate({
           path: 'followers',
+          select: '-password',
           populate: {
             path: 'vendor',
             strictPopulate: false,
@@ -215,7 +217,7 @@ export class UserService {
   findVendorByService = async (vendorIds: ObjId[]) => {
     try {
       const users = await this.userModel
-        .find({ vendor: { $in: vendorIds } })
+        .find({ vendor: { $in: vendorIds } }, { password: 0 })
         .populate('vendor');
       return returner({ results: users.length, users });
     } catch (err) {
@@ -262,6 +264,7 @@ export class UserService {
         {
           $project: {
             vendorArr: 0,
+            password: 0,
           },
         },
       ]);
@@ -320,7 +323,7 @@ export class UserService {
         .populate('vendor');
 
       updatedUser = await updatedUser.populate('vendor.service');
-      // delete updatedUser.password;
+
       return updatedUser;
     } catch (err) {
       thrower(err);
@@ -336,8 +339,11 @@ export class UserService {
           "It seems like the user's data (user.role) is out-of-sync !",
         );
       user.role = dto.to;
-      const updatedUser = await user.save();
+      const updatedUser = (await user.save()).toObject();
+      delete updatedUser.password;
       if (updatedUser.role === dto.to) return returner({ user: updatedUser });
+      else
+        throw new InternalServerErrorException('Could not change the role !');
     } catch (err) {
       thrower(err);
     }
@@ -423,9 +429,10 @@ export class UserService {
   }
 
   async getFollowers(userId: string) {
-    const userData = await this.userModel
-      .findById(userId)
-      .populate('followers');
+    const userData = await this.userModel.findById(userId).populate({
+      path: 'followers',
+      select: 'name image email followers ',
+    });
     return {
       status: 'success',
       results: userData.followers.length,
@@ -445,7 +452,7 @@ export class UserService {
           runValidators: true,
         },
       );
-      return returner({ user });
+      if (user) return returner();
     } catch (err) {
       thrower(err);
     }
@@ -463,7 +470,7 @@ export class UserService {
           runValidators: true,
         },
       );
-      return returner({ user });
+      if (user) return returner();
     } catch (err) {
       thrower(err);
     }

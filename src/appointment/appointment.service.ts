@@ -8,7 +8,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Appointment } from './appointment.model';
 import { Create } from './dto/Create.dto';
-import { ObjId, lastWeekMade, monthlyMade, thrower } from 'src/utils';
+import {
+  ObjId,
+  lastWeekMade,
+  monthlyMade,
+  returnNotFound,
+  thrower,
+} from 'src/utils';
 import { UserService } from 'src/user/user.service';
 import { Edit } from './dto/Edit.dto';
 
@@ -41,12 +47,17 @@ export class AppointmentService {
     try {
       const appointments = await this.appoModel
         .find({ vendor: vendorId })
-        .populate('user');
+        .populate({
+          path: 'user',
+          select: '-password -__v -isBanned',
+        });
       if (!appointments || !appointments.length)
         throw new NotFoundException('No documents found !');
 
-      return { status: 'success', appointments };
+      return { status: 'success', appointments, results: appointments.length };
     } catch (err) {
+      const retObj = returnNotFound(err, 'appointments', true);
+      if (retObj) return retObj;
       thrower(err);
     }
   }
@@ -55,12 +66,17 @@ export class AppointmentService {
     try {
       const appointments = await this.appoModel
         .find({ user: userId })
-        .populate('vendor');
+        .populate({
+          path: 'vendor',
+          select: '-password -__v -isBanned',
+        });
       if (!appointments || !appointments.length)
         throw new NotFoundException('No documents found !');
 
-      return { status: 'success', appointments };
+      return { status: 'success', appointments, results: appointments.length };
     } catch (err) {
+      const retObj = returnNotFound(err, 'appointments', true);
+      if (retObj) return retObj;
       thrower(err);
     }
   }
@@ -98,7 +114,10 @@ export class AppointmentService {
       appointment.date = dto.date as Date;
       appointment.description = dto.description;
       const updated = await appointment.save();
-      await updated.populate('vendor');
+      await updated.populate({
+        path: 'vendor',
+        select: '-password -__v -isBanned',
+      });
       return { status: 'success', appointment: updated };
     } catch (err) {
       thrower(err);
