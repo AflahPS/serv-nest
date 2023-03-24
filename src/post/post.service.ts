@@ -8,7 +8,14 @@ import { Create, Edit, PaginationParams } from './dto';
 import { Post } from './post.model';
 import mongoose, { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ObjId, lastWeekMade, monthlyMade, returner, thrower } from 'src/utils';
+import {
+  MongoId,
+  ObjId,
+  lastWeekMade,
+  monthlyMade,
+  returner,
+  thrower,
+} from 'src/utils';
 import { Like } from './like.model';
 import { User } from 'src/user/user.model';
 import { Vendor } from 'src/vendor/vendor.model';
@@ -80,6 +87,15 @@ export class PostService {
     }
   }
 
+  async getPostCountByUserId(dto: MongoId) {
+    try {
+      const posts = await this.postModel.find({ owner: dto.id }).count();
+      return returner({ posts });
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
   // Need something EO-Alg here
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getPostForUser(id: string | ObjId, dto: PaginationParams) {
@@ -118,7 +134,14 @@ export class PostService {
 
   async getSavedPosts(postIds: string[], dto: PaginationParams) {
     try {
-      const { limitNum, skip, totalPosts } = await this.paginationStaging(dto);
+      const { limitNum, skip } = await this.paginationStaging(dto);
+      const totalPosts = await this.postModel
+        .find({ _id: { $in: postIds } })
+        .count();
+      if (skip > totalPosts || skip < 0)
+        throw new NotFoundException(
+          'Could not find post for this page number !',
+        );
       const posts = await this.postModel
         .find({ _id: { $in: postIds } })
         .skip(skip)
@@ -188,6 +211,11 @@ export class PostService {
         post: postId,
         user: user._id,
       });
+      console.log({
+        fromLike: postId,
+        user: { _id: user._id, name: user.name },
+      });
+
       const newLike = await prepLike.save();
       if (newLike) return { status: 'success' };
       return { status: 'Something went wrong !!' };
@@ -196,10 +224,14 @@ export class PostService {
     }
   }
 
-  async dislikePost(postId: string | ObjId) {
+  async dislikePost(user: User | Vendor, postId: string | ObjId) {
     try {
+      console.log({
+        fromDislike: postId,
+        user: { _id: user._id, name: user.name },
+      });
       const res = await this.likeModel
-        .findOneAndDelete({ post: postId })
+        .findOneAndDelete({ post: postId, user: user._id })
         .exec();
 
       if (res) return { status: 'success' };
@@ -284,8 +316,4 @@ export class PostService {
       thrower(err);
     }
   }
-
-  // async sharePost(dto) {
-  //   return dto;
-  // }
 }

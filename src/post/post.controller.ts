@@ -54,6 +54,15 @@ export class PostController {
     }
   }
 
+  @Get('/count/owner/:id')
+  async getPostByUserCount(@Param() params: MongoId) {
+    try {
+      return await this.postService.getPostCountByUserId(params);
+    } catch (err) {
+      thrower(err);
+    }
+  }
+
   @Get('/owner/:id/page/:page/limit/:limit')
   async getPostByUser(@Param() params: PaginationParams) {
     try {
@@ -123,8 +132,8 @@ export class PostController {
 
   @UseGuards(JwtGuard)
   @Post('/dislike/:id')
-  async dislikePost(@Param() params: MongoId) {
-    return await this.postService.dislikePost(params.id);
+  async dislikePost(@GetUser() user: User, @Param() params: MongoId) {
+    return await this.postService.dislikePost(user, params.id);
   }
 
   @UseGuards(JwtGuard)
